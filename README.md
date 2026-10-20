@@ -1,6 +1,6 @@
 # The Haunted Studio
 
-An interactive incident response simulator built for the **Spooky Security** cybersecurity awareness event (October 29, 2026).
+This is an interactive incident response simulator demo built for the **Spooky Security** cybersecurity awareness event (October 29, 2026).
 
 Players are the newest security analyst at Graveyard Games, a fictional game studio days from launch. Each run draws a case file based on a real attack on the video game industry and walks through three stations:
 
