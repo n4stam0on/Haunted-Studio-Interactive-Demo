@@ -119,6 +119,8 @@ table.logs{border-collapse:collapse;width:100%;min-width:760px;font-family:var(-
 .row{cursor:pointer;transition:background .12s ease}
 .row:hover{background:var(--panel)}
 .row.sel{background:var(--pumpkin-wash)}
+.row.locked{opacity:.45;cursor:not-allowed}
+.row.locked:hover{background:transparent}
 .row.sel td:first-child .box{background:var(--pumpkin);border-color:var(--pumpkin);color:var(--pumpkin-ink)}
 .box{width:20px;height:20px;border:1.5px solid var(--dim);border-radius:5px;display:grid;place-items:center;font-size:13px;line-height:1}
 .graded .row{cursor:default}
@@ -227,6 +229,24 @@ table.logs{border-collapse:collapse;width:100%;min-width:760px;font-family:var(-
 .skiphint{font-family:var(--f-mono);font-size:11.5px;color:var(--dim);letter-spacing:.06em}
 .msg.playing{cursor:pointer}
 .wait{opacity:0;transition:opacity .45s ease}
+/* envelope intro */
+.envelope{position:relative;width:min(260px,72%);aspect-ratio:3/2;margin:52px auto 34px;perspective:700px;opacity:0;transform:translateY(-24px) scale(.9);transition:opacity .35s ease,transform .45s cubic-bezier(.2,.9,.3,1.3)}
+.envelope.arrived{opacity:1;transform:none}
+.envelope.shake{animation:envshake .55s ease-in-out 2}
+@keyframes envshake{0%,100%{transform:rotate(0)}15%{transform:rotate(-7deg) translateX(-4px)}35%{transform:rotate(6deg) translateX(4px)}55%{transform:rotate(-4deg)}75%{transform:rotate(3deg)}}
+.env-back,.env-front,.env-flap,.env-letter{position:absolute}
+.env-back{inset:0;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;z-index:1}
+.env-letter{left:9%;right:9%;top:9%;height:78%;background:var(--bone);border-radius:6px;z-index:2;padding:16% 12% 0;display:flex;flex-direction:column;gap:9%;transition:transform .7s cubic-bezier(.3,.8,.3,1)}
+.env-letter i{display:block;height:7%;border-radius:3px;background:#cfc3b0}
+.env-letter i:nth-child(2){width:80%} .env-letter i:nth-child(3){width:55%}
+.env-front{inset:0;z-index:3;background:color-mix(in srgb,var(--panel-2) 82%,var(--bone));border-radius:10px;clip-path:polygon(0 0,50% 56%,100% 0,100% 100%,0 100%)}
+.env-flap{left:0;right:0;top:0;height:58%;z-index:4;background:color-mix(in srgb,var(--panel-2) 70%,var(--bone));clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top center;transition:transform .55s ease,z-index 0s .27s}
+.env-seal{position:absolute;left:50%;bottom:6%;width:22px;height:22px;margin-left:-11px;border-radius:50%;background:var(--pumpkin);box-shadow:0 0 0 3px color-mix(in srgb,var(--pumpkin) 35%,transparent)}
+.envelope.open .env-flap{transform:rotateX(180deg);z-index:0}
+.envelope.rise .env-letter{transform:translateY(-48%)}
+.env-badge{position:absolute;top:-12px;right:-12px;z-index:5;background:var(--blood);color:#fff;font-family:var(--f-mono);font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;animation:pulse 1.4s infinite}
+.risein{animation:risein .5s cubic-bezier(.2,.8,.3,1) both}
+@keyframes risein{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 .fadein{opacity:1}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -748,7 +768,11 @@ function msgHTML(m,anim){
   if(m.type==="call") return `<div class="msg${anim?" playing":""}"><span class="msg-meta">${anim?`<span class="live">Live call</span> · `:"☎ "}${m.meta}</span>${m.lines.map(l=>`<div class="line"${H}><b>${l[0]}</b><span data-full="${esc(l[1])}">${anim?"":l[1]}</span></div>`).join("")}${skip}</div>`;
   if(m.type==="sms") return `<div class="msg${anim?" playing":""}"><span class="msg-meta">Text message · ${m.from} · ${m.time}</span>${anim?`<span class="typing" aria-label="Typing"><i></i><i></i><i></i></span>`:""}<div class="bubble" data-pop${H}>${m.text}</div>${skip}</div>`;
   if(m.type==="chat") return `<div class="msg${anim?" playing":""}"><span class="msg-meta">${m.channel}</span><div class="chatname"><span class="avatar">R</span><b>${m.name}</b><span class="tag">${m.tag}</span></div>${anim?`<span class="typing-label">${m.name.split(" ")[0]} is typing…</span><span class="typing" aria-label="Typing"><i></i><i></i><i></i></span>`:""}<div class="bubble" data-pop${H}>${m.text}</div>${skip}</div>`;
-  if(m.type==="email") return `<div class="msg"><span class="msg-meta">✉ Inbox</span><dl class="ehead"><dt>From</dt><dd>${m.from}</dd><dt>To</dt><dd>${m.to}</dd><dt>Subject</dt><dd><b>${m.subject}</b></dd></dl><p>${m.body}</p>${m.attach?`<span class="attach">📎 ${m.attach}</span>`:`<span class="attach">⬇ Download Graveyard Launcher</span>`}</div>`;
+  if(m.type==="email"){
+    const mail=`<div class="mail stack" ${anim?'data-pop="up" hidden':""}><dl class="ehead"><dt>From</dt><dd>${m.from}</dd><dt>To</dt><dd>${m.to}</dd><dt>Subject</dt><dd><b>${m.subject}</b></dd></dl><p>${m.body}</p>${m.attach?`<span class="attach">📎 ${m.attach}</span>`:`<span class="attach">⬇ Download Graveyard Launcher</span>`}</div>`;
+    const envelope=anim?`<div class="envelope" aria-hidden="true"><span class="env-badge">1 new</span><div class="env-back"></div><div class="env-letter"><i></i><i></i><i></i></div><div class="env-front"></div><div class="env-flap"><span class="env-seal"></span></div></div>`:"";
+    return `<div class="msg${anim?" playing":""}"><span class="msg-meta">✉ Inbox${anim?" · New message":""}</span>${envelope}${mail}${skip}</div>`;
+  }
   return "";
 }
 
@@ -763,14 +787,22 @@ function playIntro(){
     timers.forEach(clearTimeout); clearInterval(iv);
     msg.querySelectorAll(".line").forEach(l=>{l.hidden=false;const sp=l.querySelector("span");sp.textContent=sp.dataset.full;sp.classList.remove("caret");});
     msg.querySelectorAll(".typing,.typing-label,.skiphint").forEach(e=>e.remove());
-    msg.querySelectorAll("[data-pop]").forEach(b=>{if(b.hidden){b.hidden=false;b.classList.add("pop");}});
+    msg.querySelectorAll(".envelope").forEach(e=>e.remove());
+    msg.querySelectorAll("[data-pop]").forEach(b=>{if(b.hidden){b.hidden=false;b.classList.add(b.dataset.pop==="up"?"risein":"pop");}});
     const live=msg.querySelector(".live"); if(live)live.classList.remove("live");
     msg.classList.remove("playing");
     right.inert=false; requestAnimationFrame(()=>right.classList.add("fadein"));
   }
   msg.addEventListener("click",finish);
   const lines=[...msg.querySelectorAll(".line")];
-  if(lines.length){
+  const env=msg.querySelector(".envelope");
+  if(env){
+    later(()=>env.classList.add("arrived"),150);
+    later(()=>env.classList.add("shake"),700);
+    later(()=>{env.classList.remove("shake");env.classList.add("open");},1900);
+    later(()=>env.classList.add("rise"),2500);
+    later(finish,3300);
+  } else if(lines.length){
     let li=0;
     const next=()=>{
       if(li>=lines.length){later(finish,350);return;}
@@ -808,7 +840,7 @@ function station1(){
   setSteps(0);
   const c=S.c, s=c.s1, ans=S.s1;
   const vLabel={best:"Best move",ok:"Partly safe",bad:"The ghost gets in"};
-  const anim = !S.introPlayed && !S.flagsDone && s.msg.type!=="email" && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const anim = !S.introPlayed && !S.flagsDone && !matchMedia("(prefers-reduced-motion: reduce)").matches;
   S.introPlayed=true;
   let right;
   if(!S.flagsDone){
@@ -851,6 +883,7 @@ function station2(){
   const total=s.rows.filter(r=>r.s).length;
   let intro=s.intro;
   if(S.s1!==null && c.s1.opts[S.s1].v==="best") intro="You handled it well. But not everyone does. "+intro;
+  const cap = c.diff==="Easy" ? total : 0;
   const hint = c.diff==="Easy" ? ` <b style="color:var(--bone)">Hint: ${total} rows are suspicious.</b>` : ` <b style="color:var(--bone)">No hints on ${c.diff} cases. False alarms cost points.</b>`;
   let tally="";
   if(done){
@@ -866,13 +899,14 @@ function station2(){
     <div class="logwrap"><table class="logs ${done?"graded":""}"><thead><tr><th><span aria-hidden="true">⚑</span></th>${s.cols.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>
     ${s.rows.map((r,i)=>{
       const sel=S.flagged.has(i);
+      const locked=!done&&!sel&&cap&&S.flagged.size>=cap;
       let st=""; if(done){ if(r.s&&sel)st="hit"; else if(r.s)st="miss"; else if(sel)st="false"; }
       const why = done && st ? `<tr class="why ${st}"><td></td><td colspan="${s.cols.length}"><span class="verdict">${st==="hit"?"Caught":st==="miss"?"Missed":"False alarm"}</span>${r.w}</td></tr>`:"";
-      return `<tr class="row ${sel&&!done?"sel":""} ${st}" data-a="flag" data-i="${i}" tabindex="${done?-1:0}" role="checkbox" aria-checked="${sel}"><td><span class="box">${sel?"✓":""}</span></td>${r.c.map(x=>`<td>${x}</td>`).join("")}</tr>${why}`;
+      return `<tr class="row ${sel&&!done?"sel":""} ${locked?"locked":""} ${st}" data-a="flag" data-i="${i}" tabindex="${done?-1:0}" role="checkbox" aria-checked="${sel}" aria-disabled="${locked}"><td><span class="box">${sel?"✓":""}</span></td>${r.c.map(x=>`<td>${x}</td>`).join("")}</tr>${why}`;
     }).join("")}
     </tbody></table></div>
     ${done?tally+`<div class="btn-row"><button class="btn" data-a="to3">Go to Station 3: Break the Chain</button></div>`
-      :`<div class="btn-row"><button class="btn" data-a="sub2" ${S.flagged.size?"":"disabled"}>Submit findings (${S.flagged.size} flagged)</button></div>`}
+      :`<div class="btn-row"><button class="btn" data-a="sub2" ${S.flagged.size?"":"disabled"}>Submit findings</button><span class="picked-n">${cap?`${S.flagged.size} of ${cap} flagged`:`${S.flagged.size} flagged`}</span>${cap&&S.flagged.size>=cap?`<span class="picked-n" style="color:var(--amber)">That's all ${cap}. Uncheck a row to pick a different one.</span>`:""}</div>`}
   </div>`;
 }
 function grade2(){
@@ -978,7 +1012,7 @@ app.addEventListener("click",e=>{
   else if(a==="subflags"){S.flagsDone=true;station1();}
   else if(a==="s1"&&S.s1===null){S.s1=i;station1();}
   else if(a==="to2"){station2();toTop();}
-  else if(a==="flag"&&!S.s2done){S.flagged.has(i)?S.flagged.delete(i):S.flagged.add(i);station2();}
+  else if(a==="flag"&&!S.s2done){const cap=S.c.diff==="Easy"?S.c.s2.rows.filter(r=>r.s).length:0; if(S.flagged.has(i))S.flagged.delete(i); else if(!cap||S.flagged.size<cap)S.flagged.add(i); else return; station2();}
   else if(a==="sub2"){S.s2done=true;station2();}
   else if(a==="to3"){station3();toTop();}
   else if(a==="pick3"&&!S.s3done){if(S.picked.has(i))S.picked.delete(i);else if(S.picked.size<3)S.picked.add(i);station3();}
