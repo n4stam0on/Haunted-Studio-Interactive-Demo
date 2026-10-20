@@ -499,7 +499,7 @@ function setSteps(i){
   stepsEl.innerHTML=names.map((n,j)=>`<li class="${j<i?"done":j===i?"now":""}">${n}</li>`).join("");
   stepsEl.hidden = i<0;
 }
-function top(){window.scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})}
+function toTop(){window.scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})}
 
 function home(){
   S=null; setSteps(-1);
@@ -545,7 +545,7 @@ function home(){
 function start(id){
   lastId=id;
   S={c:CASES.find(x=>x.id===id), s1:null, flagged:new Set(), s2done:false, picked:new Set(), s3done:false};
-  station1(); top();
+  station1(); toTop();
 }
 
 function msgHTML(m){
@@ -679,14 +679,14 @@ app.addEventListener("click",e=>{
   else if(a==="pick")start(el.dataset.id);
   else if(a==="resetcount"){store("hs-analysts","0");store("hs-board","[]");home();}
   else if(a==="s1"&&S.s1===null){S.s1=i;station1();}
-  else if(a==="to2"){station2();top();}
+  else if(a==="to2"){station2();toTop();}
   else if(a==="flag"&&!S.s2done){S.flagged.has(i)?S.flagged.delete(i):S.flagged.add(i);station2();}
   else if(a==="sub2"){S.s2done=true;station2();}
-  else if(a==="to3"){station3();top();}
+  else if(a==="to3"){station3();toTop();}
   else if(a==="pick3"&&!S.s3done){if(S.picked.has(i))S.picked.delete(i);else if(S.picked.size<3)S.picked.add(i);station3();}
   else if(a==="sub3"){S.s3done=true;station3();}
-  else if(a==="toR"){result();top();}
-  else if(a==="home"){TEAM=null;home();top();}
+  else if(a==="toR"){result();toTop();}
+  else if(a==="home"){TEAM=null;home();toTop();}
 });
 app.addEventListener("keydown",e=>{
   if((e.key==="Enter"||e.key===" ")&&e.target.classList.contains("row")){e.preventDefault();e.target.click();
