@@ -91,6 +91,28 @@
           "pts": 1,
           "f": "Safer than texting a new number. But if his account is already compromised, the attacker reads that email too."
         }
+      ],
+      "evidence": [
+        {
+          "b": "Check the caller ID",
+          "t": "Caller ID",
+          "f": "Incoming call from +1 (512) 555-0147, a prepaid number. The number on file for Marcus is +1 (210) 555-0182."
+        },
+        {
+          "b": "Look up Marcus in the staff directory",
+          "t": "Staff directory",
+          "f": "Marcus Vane · Senior Engine Programmer · San Antonio office. No travel booked this week."
+        },
+        {
+          "b": "Check the number he wants the code sent to",
+          "t": "Requested number",
+          "f": "+40 742 555 019. Country code +40 is Romania."
+        },
+        {
+          "b": "Check his help desk history",
+          "t": "Ticket history",
+          "f": "No tickets in two years. Marcus has never asked for an MFA reset."
+        }
       ]
     },
     "s2": {
@@ -267,7 +289,60 @@
           "s": false,
           "w": "The notes say the company VPN shows up as Frankfurt. Known device, normal overnight work."
         }
-      ]
+      ],
+      "profiles": {
+        "m.vane": {
+          "role": "Senior Engine Programmer",
+          "usual": "San Antonio, TX",
+          "devices": "Windows laptop, iPhone (+1 210)",
+          "note": "No travel on file. Last MFA change: 14 months ago."
+        },
+        "j.cole": {
+          "role": "Audio Designer",
+          "usual": "San Antonio, TX",
+          "devices": "MacBook, iPhone",
+          "note": "Approved vacation: Mexico City, this week."
+        },
+        "a.rios": {
+          "role": "QA Lead",
+          "usual": "Austin, TX",
+          "devices": "MacBook",
+          "note": "Works remotely from Austin."
+        },
+        "k.tran": {
+          "role": "Producer",
+          "usual": "San Antonio, TX",
+          "devices": "Windows laptop",
+          "note": "No recent issues."
+        },
+        "d.nguyen": {
+          "role": "Night-shift Live Ops",
+          "usual": "San Antonio, TX (via company VPN)",
+          "devices": "Windows laptop",
+          "note": "Always connects through the company VPN."
+        },
+        "svc-build": {
+          "role": "Service account · build automation",
+          "usual": "Data center",
+          "devices": "Build server",
+          "note": "Runs the nightly build."
+        },
+        "svc-backup": {
+          "role": "Service account · backups",
+          "usual": "Data center",
+          "devices": "Backup server",
+          "note": "Nightly backup at 11:30 PM, usually 150 to 250 GB."
+        }
+      },
+      "lookups": {
+        "San Antonio, TX": "Residential and office internet in San Antonio. Matches most staff.",
+        "Mexico City, Mexico": "Hotel Wi-Fi in Mexico City.",
+        "Austin, TX": "Residential internet in Austin.",
+        "Bucharest, Romania": "185.220.x.x · rented server (hosting provider). Not a home or office connection.",
+        "Frankfurt (company VPN)": "Graveyard Games VPN gateway in Frankfurt.",
+        "Data center": "Company data center.",
+        "Help desk portal": "Internal help desk tool. Actions are taken by a help desk agent."
+      }
     },
     "s3": {
       "intro": "The attacker is inside Marcus's account right now. Pick the 3 moves you make first.",
@@ -311,6 +386,48 @@
           "t": "Wait until morning to tell the security team",
           "g": "bad",
           "w": "Every hour you wait, the attacker keeps working."
+        }
+      ],
+      "feed": [
+        {
+          "t": "Searches #engine-builds chat for the build location",
+          "by": [
+            0,
+            1
+          ]
+        },
+        {
+          "t": "Starts downloading build_final.zip (38 GB)",
+          "by": [
+            2,
+            1
+          ]
+        },
+        {
+          "t": "Signs back in using the +40 phone",
+          "by": [
+            1
+          ]
+        },
+        {
+          "t": "Downloads the launch trailer and press kit",
+          "by": [
+            0,
+            1
+          ]
+        },
+        {
+          "t": "Adds a second MFA device for backup access",
+          "by": [
+            1
+          ]
+        },
+        {
+          "t": "Downloads the engine source code",
+          "by": [
+            2,
+            1
+          ]
         }
       ]
     },
@@ -357,7 +474,41 @@
           "Valid Accounts"
         ]
       ]
-    }
+    },
+    "timeline": [
+      {
+        "t": "Finds Marcus's name and team on LinkedIn",
+        "s": [
+          0
+        ]
+      },
+      {
+        "t": "Calls the help desk pretending to be Marcus",
+        "s": [
+          2
+        ]
+      },
+      {
+        "t": "Help desk resets the MFA and enrolls the attacker's phone",
+        "s": [
+          3,
+          4
+        ]
+      },
+      {
+        "t": "Signs in from Romania on a new device",
+        "s": [
+          4,
+          5
+        ]
+      },
+      {
+        "t": "Downloads the unreleased launch build",
+        "s": [
+          6
+        ]
+      }
+    ]
   },
   {
     "id": "launcher",
@@ -444,6 +595,28 @@
           "v": "ok",
           "pts": 1,
           "f": "Antivirus helps, but new or repackaged malware often isn't detected yet. A clean scan isn't a green light."
+        }
+      ],
+      "evidence": [
+        {
+          "b": "Hover over the download link",
+          "t": "Real link address",
+          "f": "files-graveyardgames.com/launcher.exe. Official downloads only come from graveyardgames.com/download."
+        },
+        {
+          "b": "View the full email headers",
+          "t": "Email headers",
+          "f": "Sent through the real support platform by agent account vendor.oscar. The system is real; the sender might not be."
+        },
+        {
+          "b": "Check the official news page",
+          "t": "Official news",
+          "f": "No launcher announcement. The last post is patch notes from two weeks ago."
+        },
+        {
+          "b": "Check the download's signature",
+          "t": "File details",
+          "f": "launcher.exe · 2.1 MB · not digitally signed by Graveyard Games."
         }
       ]
     },
@@ -620,7 +793,32 @@
           "s": false,
           "w": "This is the real Oscar, still working from Manila. Two places at once is your clue his login was stolen."
         }
-      ]
+      ],
+      "profiles": {
+        "agent.dana": {
+          "role": "Player Support Agent",
+          "usual": "San Antonio, TX",
+          "devices": "Office PC",
+          "note": "Sends templated outage replies."
+        },
+        "agent.mia": {
+          "role": "Player Support Agent",
+          "usual": "San Antonio, TX",
+          "devices": "Office PC",
+          "note": "Password expired today."
+        },
+        "vendor.oscar": {
+          "role": "Outsourced Support Agent (vendor)",
+          "usual": "Manila, Philippines",
+          "devices": "Vendor office PC",
+          "note": "Vendor policy: no personal VPNs. Should never edit email templates."
+        }
+      },
+      "lookups": {
+        "San Antonio, TX": "Graveyard Games office network.",
+        "Manila, Philippines": "Support vendor's office network. Matches vendor.oscar's usual location.",
+        "Amsterdam (VPN service)": "Consumer VPN service. Hides where the user really is."
+      }
     },
     "s3": {
       "intro": "The fake launcher steals saved passwords from players' computers. Pick your 3 first moves.",
@@ -664,6 +862,45 @@
           "t": "Email all players a link to a \"fixed\" launcher",
           "g": "bad",
           "w": "A second surprise download email trains players to keep clicking. Point them to the official site instead."
+        }
+      ],
+      "feed": [
+        {
+          "t": "Sends a second wave of the email to 12,000 more players",
+          "by": [
+            0
+          ]
+        },
+        {
+          "t": "400 more players download launcher.exe",
+          "by": [
+            1
+          ]
+        },
+        {
+          "t": "Stolen passwords start arriving at the attacker's server",
+          "by": [
+            2
+          ]
+        },
+        {
+          "t": "Posts the fake launcher in the official forum as Support",
+          "by": [
+            0
+          ]
+        },
+        {
+          "t": "800 more players run the launcher",
+          "by": [
+            1,
+            2
+          ]
+        },
+        {
+          "t": "Logs into 300 player accounts and sells their rare items",
+          "by": [
+            2
+          ]
         }
       ]
     },
@@ -714,7 +951,41 @@
           "Credentials from Password Stores"
         ]
       ]
-    }
+    },
+    "timeline": [
+      {
+        "t": "Steals the login for a vendor support account",
+        "s": [
+          0,
+          3
+        ]
+      },
+      {
+        "t": "Builds a fake launcher that steals passwords",
+        "s": [
+          1
+        ]
+      },
+      {
+        "t": "Emails 48,000 players from the real support system",
+        "s": [
+          2
+        ]
+      },
+      {
+        "t": "Players install and run the fake launcher",
+        "s": [
+          3,
+          4
+        ]
+      },
+      {
+        "t": "Uses stolen player passwords to take over accounts",
+        "s": [
+          6
+        ]
+      }
+    ]
   },
   {
     "id": "text",
@@ -799,6 +1070,28 @@
           "v": "bad",
           "pts": 0,
           "f": "Replying tells the attacker your number is active, and they'll happily keep the conversation going."
+        }
+      ],
+      "evidence": [
+        {
+          "b": "Long-press the link",
+          "t": "Full link address",
+          "f": "https://graveyard-games-it.help/verify. The domain was registered three days ago."
+        },
+        {
+          "b": "Look up the sender's number",
+          "t": "Sender number",
+          "f": "+1 (415) 555-0199 is an internet phone number. It isn't in the company directory."
+        },
+        {
+          "b": "Check the IT status page",
+          "t": "IT status page",
+          "f": "No lockouts or security alerts posted today."
+        },
+        {
+          "b": "Check your account security page",
+          "t": "Your account",
+          "f": "No unusual activity and no pending lockout on your account."
         }
       ]
     },
@@ -975,7 +1268,46 @@
           "s": false,
           "w": "The real Jordan, still at work and unaware."
         }
-      ]
+      ],
+      "profiles": {
+        "j.okafor": {
+          "role": "Producer",
+          "usual": "San Antonio, TX",
+          "devices": "Windows laptop, iPhone",
+          "note": "No travel on file."
+        },
+        "m.santos": {
+          "role": "Narrative Designer",
+          "usual": "Toronto, Canada",
+          "devices": "MacBook",
+          "note": "Full-time remote."
+        },
+        "r.patel": {
+          "role": "IT Support",
+          "usual": "San Antonio, TX",
+          "devices": "Windows laptop, MacBook",
+          "note": "Uses the real IT site daily."
+        },
+        "d.nguyen": {
+          "role": "Live Ops",
+          "usual": "San Antonio, TX (via company VPN)",
+          "devices": "Windows laptop",
+          "note": "Company VPN exits in Frankfurt."
+        },
+        "svc-backup": {
+          "role": "Service account · backups",
+          "usual": "Data center",
+          "devices": "Backup server",
+          "note": "Scheduled job."
+        }
+      },
+      "lookups": {
+        "San Antonio, TX": "Graveyard Games office network.",
+        "Toronto, Canada": "Residential internet in Toronto.",
+        "Frankfurt, Germany (hosting provider)": "Rented cloud server in Frankfurt. Not the company VPN.",
+        "Frankfurt (company VPN)": "Graveyard Games VPN gateway in Frankfurt.",
+        "Data center": "Company data center."
+      }
     },
     "s3": {
       "intro": "Jordan's password and login were captured through a fake page. Pick your 3 first moves.",
@@ -1019,6 +1351,44 @@
           "t": "Block all text messages on company phones",
           "g": "bad",
           "w": "Overkill that breaks real communication and doesn't remove the attacker."
+        }
+      ],
+      "feed": [
+        {
+          "t": "Reads Jordan's inbox",
+          "by": [
+            0
+          ]
+        },
+        {
+          "t": "Forwarding rule sends \"Q3 budget\" to an outside inbox",
+          "by": [
+            1
+          ]
+        },
+        {
+          "t": "A second employee opens the fake IT link",
+          "by": [
+            2
+          ]
+        },
+        {
+          "t": "Downloads the \"Unannounced titles\" slide deck",
+          "by": [
+            0
+          ]
+        },
+        {
+          "t": "Forwarding rule sends \"Publisher contract draft\"",
+          "by": [
+            1
+          ]
+        },
+        {
+          "t": "A third employee types a password into the fake site",
+          "by": [
+            2
+          ]
         }
       ]
     },
@@ -1069,7 +1439,39 @@
           "Data from Information Repositories"
         ]
       ]
-    }
+    },
+    "timeline": [
+      {
+        "t": "Registers graveyard-games-it.help",
+        "s": [
+          1
+        ]
+      },
+      {
+        "t": "Texts employees a fake account-lockout warning",
+        "s": [
+          2
+        ]
+      },
+      {
+        "t": "Jordan enters a password and approves the MFA prompt",
+        "s": [
+          3
+        ]
+      },
+      {
+        "t": "Creates a rule forwarding Jordan's email outside",
+        "s": [
+          4
+        ]
+      },
+      {
+        "t": "Opens the 2027 release calendar",
+        "s": [
+          6
+        ]
+      }
+    ]
   },
   {
     "id": "shield",
@@ -1155,6 +1557,28 @@
           "v": "bad",
           "pts": 0,
           "f": "A new token opens the same doors. You've just made one specifically for the attacker."
+        }
+      ],
+      "evidence": [
+        {
+          "b": "Open Riley's profile",
+          "t": "Riley's profile",
+          "f": "Riley M. · External guest · invited two days ago from a personal Gmail address. Not a member of the security channel."
+        },
+        {
+          "b": "Search the staff directory for Riley",
+          "t": "Staff directory",
+          "f": "No one named Riley works on the security team."
+        },
+        {
+          "b": "Check security team announcements",
+          "t": "Security announcements",
+          "f": "No key rotation scheduled. Policy: tokens are only rotated in the developer portal."
+        },
+        {
+          "b": "Check the anti-cheat patch date",
+          "t": "Release schedule",
+          "f": "The anti-cheat patch ships next Thursday, not tonight."
         }
       ]
     },
@@ -1332,7 +1756,46 @@
           "s": false,
           "w": "The real Kai arriving at work, unaware."
         }
-      ]
+      ],
+      "profiles": {
+        "dev.kai": {
+          "role": "Anti-cheat Engineer",
+          "usual": "San Antonio, TX",
+          "devices": "MacBook",
+          "note": "Often works past midnight. Has access to all repositories."
+        },
+        "dev.sam": {
+          "role": "Gameplay Engineer",
+          "usual": "San Antonio, TX",
+          "devices": "Windows laptop",
+          "note": "Normal late-night commits."
+        },
+        "dev.priya": {
+          "role": "UI Engineer (partner studio)",
+          "usual": "Seoul, South Korea",
+          "devices": "MacBook",
+          "note": "Access limited to UI repositories."
+        },
+        "dev.ana": {
+          "role": "Tools Engineer",
+          "usual": "Austin, TX",
+          "devices": "MacBook",
+          "note": "No recent issues."
+        },
+        "ci-bot": {
+          "role": "Service account · builds",
+          "usual": "Build server",
+          "devices": "Server",
+          "note": "Clones about 40 repositories every night."
+        }
+      },
+      "lookups": {
+        "San Antonio, TX": "Graveyard Games office network or staff home internet.",
+        "Austin, TX": "Residential internet in Austin.",
+        "Seoul, South Korea": "Partner studio office network in Seoul.",
+        "Cloud server (rented)": "Rented cloud server paid by the hour. No employee uses one.",
+        "Build server": "Company build server."
+      }
     },
     "s3": {
       "intro": "The attacker copied your source code and is demanding a ransom. Pick your 3 first moves.",
@@ -1376,6 +1839,44 @@
           "t": "Keep quiet and hope it never leaks",
           "g": "bad",
           "w": "Silence leaves players and staff unprepared."
+        }
+      ],
+      "feed": [
+        {
+          "t": "Clones 20 more repositories",
+          "by": [
+            0
+          ]
+        },
+        {
+          "t": "Logs into a live game server with a password from prod_keys.env",
+          "by": [
+            1
+          ]
+        },
+        {
+          "t": "Starts deleting repository audit logs",
+          "by": [
+            2
+          ]
+        },
+        {
+          "t": "Uses the stolen token to create a second token",
+          "by": [
+            0
+          ]
+        },
+        {
+          "t": "Changes a setting on a live game server",
+          "by": [
+            1
+          ]
+        },
+        {
+          "t": "Tries to wipe the access history for the anti-cheat repo",
+          "by": [
+            2
+          ]
         }
       ]
     },
@@ -1426,7 +1927,41 @@
           "Credentials in Files"
         ]
       ]
-    }
+    },
+    "timeline": [
+      {
+        "t": "Joins the chat workspace as an external guest",
+        "s": [
+          0,
+          2
+        ]
+      },
+      {
+        "t": "Asks Kai for a code access token",
+        "s": [
+          2
+        ]
+      },
+      {
+        "t": "Kai creates and shares the token",
+        "s": [
+          3
+        ]
+      },
+      {
+        "t": "Uses the token from a rented cloud server",
+        "s": [
+          4,
+          5
+        ]
+      },
+      {
+        "t": "Clones 214 repositories and reads the server passwords",
+        "s": [
+          6
+        ]
+      }
+    ]
   },
   {
     "id": "crypt",
@@ -1513,6 +2048,28 @@
           "v": "bad",
           "pts": 0,
           "f": "That doesn't remove the danger. It hands the trap to someone else."
+        }
+      ],
+      "evidence": [
+        {
+          "b": "Hover over the sender address",
+          "t": "Sender address",
+          "f": "invoices@nightshade-loc.co. The vendor on file uses billing@nightshadelocalization.com."
+        },
+        {
+          "b": "Check the vendor payment records",
+          "t": "Vendor records",
+          "f": "Nightshade Localization was paid in full on Oct 1. No open invoices."
+        },
+        {
+          "b": "Inspect the attachment",
+          "t": "Attachment scan",
+          "f": "Invoice_Oct.docm contains macros. 2 of 60 antivirus engines flag it."
+        },
+        {
+          "b": "Check the reply-to address",
+          "t": "Reply-to",
+          "f": "Replies go to payments.nightshade@protonmail.com, a different address than the sender."
         }
       ]
     },
@@ -1701,7 +2258,59 @@
           "s": true,
           "w": "The ransomware itself, locking the studio's files."
         }
-      ]
+      ],
+      "profiles": {
+        "l.moreau": {
+          "role": "Producer (vendor payments)",
+          "usual": "PROD-PC-14",
+          "devices": "PROD-PC-14",
+          "note": "Handles localization invoices."
+        },
+        "a.diaz": {
+          "role": "Designer",
+          "usual": "PROD-PC-09",
+          "devices": "PROD-PC-09",
+          "note": "No recent issues."
+        },
+        "r.ortiz": {
+          "role": "IT Administrator",
+          "usual": "IT-PC-01",
+          "devices": "IT-PC-01",
+          "note": "Runs the Tuesday PowerShell inventory script."
+        },
+        "ci-bot": {
+          "role": "Service account · builds",
+          "usual": "BUILD-01",
+          "devices": "BUILD-01",
+          "note": "Nightly game build."
+        },
+        "svc-admin": {
+          "role": "Service account · domain admin",
+          "usual": "IT-PC-01 only",
+          "devices": "IT-PC-01",
+          "note": "Must never sign in from a workstation."
+        },
+        "svc-backup": {
+          "role": "Service account · backups",
+          "usual": "FILESRV-02 to backup server",
+          "devices": "Backup server",
+          "note": "Copies the file server daily at 10:25."
+        },
+        "j.wu": {
+          "role": "Artist",
+          "usual": "ART-PC-03",
+          "devices": "ART-PC-03",
+          "note": "No recent issues."
+        }
+      },
+      "lookups": {
+        "PROD-PC-14": "Producer workstation, 3rd floor.",
+        "PROD-PC-09": "Designer workstation, 3rd floor.",
+        "IT-PC-01": "IT admin workstation, the only machine allowed to use svc-admin.",
+        "BUILD-01": "Game build server.",
+        "FILESRV-02": "Main file server: art, audio, and design documents.",
+        "ART-PC-03": "Artist workstation, 2nd floor."
+      }
     },
     "s3": {
       "intro": "Files are being locked across the studio. Pick your 3 first moves.",
@@ -1745,6 +2354,44 @@
           "t": "Reconnect a machine to see if it spreads again",
           "g": "bad",
           "w": "Never test on production. You'd be helping the attack along."
+        }
+      ],
+      "feed": [
+        {
+          "t": "Ransomware spreads to ART-PC-03",
+          "by": [
+            0
+          ]
+        },
+        {
+          "t": "Attacker reaches the backup server",
+          "by": [
+            1
+          ]
+        },
+        {
+          "t": "Uses the stolen admin password on BUILD-01",
+          "by": [
+            2
+          ]
+        },
+        {
+          "t": "Starts encrypting the backup server",
+          "by": [
+            1
+          ]
+        },
+        {
+          "t": "Ransomware spreads to 12 more workstations",
+          "by": [
+            0
+          ]
+        },
+        {
+          "t": "Creates a hidden admin account to come back later",
+          "by": [
+            2
+          ]
         }
       ]
     },
@@ -1803,6 +2450,39 @@
           "Data Encrypted for Impact"
         ]
       ]
-    }
+    },
+    "timeline": [
+      {
+        "t": "Builds an invoice with hidden macros",
+        "s": [
+          1
+        ]
+      },
+      {
+        "t": "The invoice email reaches the producer",
+        "s": [
+          2
+        ]
+      },
+      {
+        "t": "Macros run and launch hidden PowerShell",
+        "s": [
+          3
+        ]
+      },
+      {
+        "t": "Malware installs and steals admin passwords",
+        "s": [
+          4,
+          5
+        ]
+      },
+      {
+        "t": "Copies 120 GB out and encrypts the file server",
+        "s": [
+          6
+        ]
+      }
+    ]
   }
 ]

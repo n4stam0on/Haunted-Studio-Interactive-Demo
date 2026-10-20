@@ -2,16 +2,17 @@
 
 An interactive incident response simulator built for the **Spooky Security** cybersecurity awareness event (October 29, 2026), and phase one of a capstone project on security operations for live-service games.
 
-Players are the newest security analyst at Graveyard Games, a fictional studio days from launch. Each case file is based on a real attack on the video game industry and runs through four stations:
+Players are the newest security analyst at Graveyard Games, a fictional studio days from launch. Each case file is based on a real attack on the video game industry and runs through five stations:
 
-1. **The Call** – spot the red flags in a phone call, email, text, or chat, then choose a response.
-2. **Log Hunt** – use analyst notes to find the attacker in a sign-in, audit, or endpoint log full of red herrings. Then compare your findings with the **Auto-Analyst**, a detection script that runs on the same log.
-3. **Break the Chain** – pick containment moves, separating what stops the attack now from what can wait.
-4. **The Brief** – choose the accurate summary to send leadership.
+1. **The Call** – investigate the first contact (check caller ID, hover links, read headers, search the staff directory), spot the red flags, and choose a response.
+2. **Log Hunt** – find the attacker in a log full of red herrings, using analyst notes, clickable user profiles, IP and machine lookups, and log search. Then compare your findings with the **Auto-Analyst**, a detection script that runs on the same log.
+3. **Contain** – the attacker keeps acting in a live activity feed while you choose. You get three moves, each takes effect immediately, and faster containment blocks more damage.
+4. **Timeline** – rebuild the attack in order and tag each step with its Cyber Kill Chain stage, the way an incident report starts.
+5. **The Brief** – choose the accurate summary to send leadership.
 
 The debrief shows where the attack was stopped on the Cyber Kill Chain and reveals the real incident, mapped to MITRE ATT&CK.
 
-**Play solo or as a team.** In team mode, 2–4 players take SOC roles (Help Desk Lead, Threat Hunter, Incident Commander, Communications Lead), each leading a station. Team scores go on a local leaderboard.
+**Play solo or as a team.** In team mode, 2–4 players rotate through SOC roles (Help Desk Lead, Threat Hunter, Incident Commander, Forensic Analyst, Communications Lead), each leading a station. Team scores go on a local leaderboard.
 
 ## Case files
 
@@ -63,7 +64,7 @@ reports/              sample detection report
 ## Editing a case
 
 1. Edit `data/cases.json` or `data/rules.json`.
-2. Run `python tools/build_cases.py`. It checks every case (one best answer, three "now" moves, matching log columns) and rebuilds the JS data files.
+2. Run `python tools/build_cases.py`. It checks every case (one best answer, three "now" moves, matching log columns, a profile for every user, live-feed events tied to real moves) and rebuilds the JS data files.
 3. Run `python tools/bundle.py` to rebuild `index.html` and the offline file.
 
 ## Run it

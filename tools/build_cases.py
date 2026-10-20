@@ -16,7 +16,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-REQUIRED = {"id", "file", "title", "diff", "teaser", "s1", "s2", "s3", "s4", "reveal"}
+REQUIRED = {"id", "file", "title", "diff", "teaser", "s1", "s2", "s3", "s4", "timeline", "reveal"}
 
 
 def validate(cases, rules):
@@ -43,6 +43,22 @@ def validate(cases, rules):
                 problems.append(f"{name}: log row {i} has {len(row['c'])} cells, expected {width}")
         if sum(a["g"] == "now" for a in c["s3"]["acts"]) != 3:
             problems.append(f"{name}: Station 3 needs exactly three 'now' moves")
+        if len(c["s1"].get("evidence", [])) < 2:
+            problems.append(f"{name}: Station 1 needs at least two evidence checks")
+        user_col = "User" if "User" in c["s2"]["cols"] else "Account"
+        loc_col = "Location" if "Location" in c["s2"]["cols"] else "Machine"
+        for row in c["s2"]["rows"]:
+            u = row["c"][c["s2"]["cols"].index(user_col)]
+            l = row["c"][c["s2"]["cols"].index(loc_col)]
+            if u not in c["s2"].get("profiles", {}):
+                problems.append(f"{name}: no profile for user {u}")
+            if l not in c["s2"].get("lookups", {}):
+                problems.append(f"{name}: no lookup for {l}")
+        for e in c["s3"].get("feed", []):
+            if not e["by"] or any(c["s3"]["acts"][i]["g"] != "now" for i in e["by"]):
+                problems.append(f"{name}: live feed event must be stopped by 'now' moves: {e['t']}")
+        if len(c.get("timeline", [])) < 3:
+            problems.append(f"{name}: timeline needs at least three steps")
         if sum(o["best"] for o in c["s4"]["opts"]) != 1:
             problems.append(f"{name}: Station 4 needs exactly one best summary")
     rule_ids = [r["id"] for r in rules["rules"]]
