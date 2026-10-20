@@ -96,22 +96,26 @@
         {
           "b": "Check the caller ID",
           "t": "Caller ID",
-          "f": "Incoming call from +1 (512) 555-0147, a prepaid number. The number on file for Marcus is +1 (210) 555-0182."
+          "f": "Incoming call from +1 (512) 555-0147, a prepaid number. The number on file for Marcus is +1 (210) 555-0182.",
+          "tool": "Phone system"
         },
         {
           "b": "Look up Marcus in the staff directory",
           "t": "Staff directory",
-          "f": "Marcus Vane · Senior Engine Programmer · San Antonio office. No travel booked this week."
+          "f": "Marcus Vane · Senior Engine Programmer · San Antonio office. No travel booked this week.",
+          "tool": "Directory"
         },
         {
           "b": "Check the number he wants the code sent to",
           "t": "Requested number",
-          "f": "+40 742 555 019. Country code +40 is Romania."
+          "f": "+40 742 555 019. Country code +40 is Romania.",
+          "tool": "Phone system"
         },
         {
           "b": "Check his help desk history",
           "t": "Ticket history",
-          "f": "No tickets in two years. Marcus has never asked for an MFA reset."
+          "f": "No tickets in two years. Marcus has never asked for an MFA reset.",
+          "tool": "Ticket history"
         }
       ]
     },
@@ -350,42 +354,67 @@
         {
           "t": "End all of Marcus's active sessions",
           "g": "now",
-          "w": "Kicks the attacker out of every place they're logged in right now."
+          "w": "Kicks the attacker out of every place they're logged in right now.",
+          "do": [
+            "directory|m.vane|revoke"
+          ]
         },
         {
           "t": "Remove the +40 phone and lock the account until the real Marcus is verified",
           "g": "now",
-          "w": "Takes back the keys the help desk was tricked into handing over."
+          "w": "Takes back the keys the help desk was tricked into handing over.",
+          "do": [
+            "directory|m.vane|removemfa",
+            "directory|m.vane|disable"
+          ]
         },
         {
           "t": "Block the unknown device from the build server",
           "g": "now",
-          "w": "Stops any more of the game from leaving."
+          "w": "Stops any more of the game from leaving.",
+          "do": [
+            "network|Bucharest, Romania|block"
+          ]
         },
         {
           "t": "Tell the producers the build may have leaked",
           "g": "later",
-          "w": "They need to know soon, but stop the attacker first, then brief them with facts."
+          "w": "They need to know soon, but stop the attacker first, then brief them with facts.",
+          "do": [
+            "desk"
+          ]
         },
         {
           "t": "Retrain the help desk on the callback policy",
           "g": "later",
-          "w": "Important to prevent a repeat, but it doesn't stop tonight's attacker."
+          "w": "Important to prevent a repeat, but it doesn't stop tonight's attacker.",
+          "do": [
+            "desk"
+          ]
         },
         {
           "t": "Reset every employee's password company-wide right now",
           "g": "bad",
-          "w": "Locks out the whole studio three days before launch. The attacker is in one account; act on that one."
+          "w": "Locks out the whole studio three days before launch. The attacker is in one account; act on that one.",
+          "do": [
+            "directory|*|resetall"
+          ]
         },
         {
           "t": "Delete the logs so the leak details don't spread",
           "g": "bad",
-          "w": "Logs are your evidence. Deleting them helps the attacker."
+          "w": "Logs are your evidence. Deleting them helps the attacker.",
+          "do": [
+            "desk"
+          ]
         },
         {
           "t": "Wait until morning to tell the security team",
           "g": "bad",
-          "w": "Every hour you wait, the attacker keeps working."
+          "w": "Every hour you wait, the attacker keeps working.",
+          "do": [
+            "desk"
+          ]
         }
       ],
       "feed": [
@@ -508,7 +537,53 @@
           6
         ]
       }
-    ]
+    ],
+    "console": {
+      "tools": [
+        "directory",
+        "network",
+        "desk",
+        "docs"
+      ],
+      "docs": [
+        "acct",
+        "mfa"
+      ],
+      "mfa": {
+        "m.vane": [
+          "iPhone (+1 210) · enrolled 2025",
+          "Phone (+40 742 555 019) · enrolled tonight, 11:52 PM"
+        ]
+      },
+      "globals": {
+        "directory": [
+          {
+            "verb": "resetall",
+            "label": "Force a password reset for ALL users"
+          }
+        ]
+      },
+      "network": [
+        {
+          "target": "Bucharest, Romania",
+          "note": "185.220.x.x · rented hosting server"
+        },
+        {
+          "target": "Mexico City, Mexico",
+          "note": "Hotel Wi-Fi"
+        },
+        {
+          "target": "Frankfurt (company VPN)",
+          "note": "Company VPN gateway"
+        }
+      ],
+      "nofx": {
+        "directory|m.vane|reset": "Password reset, but the attacker signs in with the +40 phone they enrolled. Still inside.",
+        "directory|m.vane|wipe": "You wiped Marcus's real iPhone. The attacker's phone is a different device.",
+        "network|Frankfurt (company VPN)|block": "You cut off every overnight employee on the VPN. The attacker isn't using it.",
+        "network|Mexico City, Mexico|block": "j.cole is locked out on vacation. The attacker isn't there."
+      }
+    }
   },
   {
     "id": "launcher",
@@ -601,22 +676,26 @@
         {
           "b": "Hover over the download link",
           "t": "Real link address",
-          "f": "files-graveyardgames.com/launcher.exe. Official downloads only come from graveyardgames.com/download."
+          "f": "files-graveyardgames.com/launcher.exe. Official downloads only come from graveyardgames.com/download.",
+          "tool": "Mail security"
         },
         {
           "b": "View the full email headers",
           "t": "Email headers",
-          "f": "Sent through the real support platform by agent account vendor.oscar. The system is real; the sender might not be."
+          "f": "Sent through the real support platform by agent account vendor.oscar. The system is real; the sender might not be.",
+          "tool": "Mail security"
         },
         {
           "b": "Check the official news page",
           "t": "Official news",
-          "f": "No launcher announcement. The last post is patch notes from two weeks ago."
+          "f": "No launcher announcement. The last post is patch notes from two weeks ago.",
+          "tool": "Web"
         },
         {
           "b": "Check the download's signature",
           "t": "File details",
-          "f": "launcher.exe · 2.1 MB · not digitally signed by Graveyard Games."
+          "f": "launcher.exe · 2.1 MB · not digitally signed by Graveyard Games.",
+          "tool": "Endpoint"
         }
       ]
     },
@@ -826,42 +905,68 @@
         {
           "t": "End all of vendor.oscar's sessions and reset his password",
           "g": "now",
-          "w": "Cuts the attacker out of your support system."
+          "w": "Cuts the attacker out of your support system.",
+          "do": [
+            "directory|vendor.oscar|revoke",
+            "directory|vendor.oscar|reset",
+            "directory|vendor.oscar|disable"
+          ]
         },
         {
           "t": "Block the lookalike download link",
           "g": "now",
-          "w": "Stops new victims, even if some players still click."
+          "w": "Stops new victims, even if some players still click.",
+          "do": [
+            "network|files-graveyardgames.com|block"
+          ]
         },
         {
           "t": "Warn players on official channels: don't run it, reset passwords, turn on MFA",
           "g": "now",
-          "w": "Protects the people who already got the email."
+          "w": "Protects the people who already got the email.",
+          "do": [
+            "desk"
+          ]
         },
         {
           "t": "Review which other vendor accounts can send bulk email",
           "g": "later",
-          "w": "Smart cleanup, but first stop the active damage."
+          "w": "Smart cleanup, but first stop the active damage.",
+          "do": [
+            "desk"
+          ]
         },
         {
           "t": "Offer account recovery help to affected players",
           "g": "later",
-          "w": "Kind and useful once the bleeding has stopped."
+          "w": "Kind and useful once the bleeding has stopped.",
+          "do": [
+            "desk"
+          ]
         },
         {
           "t": "Shut down the support system for good",
           "g": "bad",
-          "w": "An overreaction. Contain the one bad account; players still need support."
+          "w": "An overreaction. Contain the one bad account; players still need support.",
+          "do": [
+            "desk"
+          ]
         },
         {
           "t": "Ask players to reply with their passwords so you can check their accounts",
           "g": "bad",
-          "w": "Never ask for passwords. That's exactly what attackers do."
+          "w": "Never ask for passwords. That's exactly what attackers do.",
+          "do": [
+            "desk"
+          ]
         },
         {
           "t": "Email all players a link to a \"fixed\" launcher",
           "g": "bad",
-          "w": "A second surprise download email trains players to keep clicking. Point them to the official site instead."
+          "w": "A second surprise download email trains players to keep clicking. Point them to the official site instead.",
+          "do": [
+            "desk"
+          ]
         }
       ],
       "feed": [
@@ -985,7 +1090,42 @@
           6
         ]
       }
-    ]
+    ],
+    "console": {
+      "tools": [
+        "directory",
+        "network",
+        "desk",
+        "docs"
+      ],
+      "docs": [
+        "acct",
+        "phish"
+      ],
+      "mfa": {
+        "vendor.oscar": [
+          "Authenticator app · enrolled 2025"
+        ]
+      },
+      "network": [
+        {
+          "target": "files-graveyardgames.com",
+          "note": "Lookalike domain hosting launcher.exe"
+        },
+        {
+          "target": "Amsterdam (VPN service)",
+          "note": "Consumer VPN exit used tonight"
+        },
+        {
+          "target": "Manila, Philippines",
+          "note": "Support vendor's office"
+        }
+      ],
+      "nofx": {
+        "network|Amsterdam (VPN service)|block": "Blocked one VPN server. The attacker just switches to another, still logged in.",
+        "network|Manila, Philippines|block": "You locked out the whole vendor office. Real agents can't work, and the attacker isn't there."
+      }
+    }
   },
   {
     "id": "text",
@@ -1076,22 +1216,26 @@
         {
           "b": "Long-press the link",
           "t": "Full link address",
-          "f": "https://graveyard-games-it.help/verify. The domain was registered three days ago."
+          "f": "https://graveyard-games-it.help/verify. The domain was registered three days ago.",
+          "tool": "Phone"
         },
         {
           "b": "Look up the sender's number",
           "t": "Sender number",
-          "f": "+1 (415) 555-0199 is an internet phone number. It isn't in the company directory."
+          "f": "+1 (415) 555-0199 is an internet phone number. It isn't in the company directory.",
+          "tool": "Directory"
         },
         {
           "b": "Check the IT status page",
           "t": "IT status page",
-          "f": "No lockouts or security alerts posted today."
+          "f": "No lockouts or security alerts posted today.",
+          "tool": "IT status"
         },
         {
           "b": "Check your account security page",
           "t": "Your account",
-          "f": "No unusual activity and no pending lockout on your account."
+          "f": "No unusual activity and no pending lockout on your account.",
+          "tool": "Directory"
         }
       ]
     },
@@ -1315,42 +1459,67 @@
         {
           "t": "End Jordan's sessions and reset the password",
           "g": "now",
-          "w": "Kicks out the attacker and makes the stolen password useless."
+          "w": "Kicks out the attacker and makes the stolen password useless.",
+          "do": [
+            "directory|j.okafor|revoke",
+            "directory|j.okafor|reset"
+          ]
         },
         {
           "t": "Delete the mail forwarding rule",
           "g": "now",
-          "w": "Otherwise the attacker keeps getting Jordan's email even after the reset."
+          "w": "Otherwise the attacker keeps getting Jordan's email even after the reset.",
+          "do": [
+            "mail|Forward all mail to an outside address|delete"
+          ]
         },
         {
           "t": "Block the lookalike domain for the whole company",
           "g": "now",
-          "w": "Anyone else who taps the link hits a wall."
+          "w": "Anyone else who taps the link hits a wall.",
+          "do": [
+            "network|graveyard-games-it.help|block"
+          ]
         },
         {
           "t": "Warn all staff about the fake IT text",
           "g": "later",
-          "w": "Important, and it comes right after you've cut off the active attacker."
+          "w": "Important, and it comes right after you've cut off the active attacker.",
+          "do": [
+            "desk"
+          ]
         },
         {
           "t": "Switch MFA to number matching so push approvals are harder to trick",
           "g": "later",
-          "w": "A strong fix for the future, not a first move."
+          "w": "A strong fix for the future, not a first move.",
+          "do": [
+            "directory|*|numbermatch"
+          ]
         },
         {
           "t": "Remotely wipe Jordan's phone",
           "g": "bad",
-          "w": "The phone wasn't infected; the password was typed into a fake site. Wiping destroys evidence."
+          "w": "The phone wasn't infected; the password was typed into a fake site. Wiping destroys evidence.",
+          "do": [
+            "directory|j.okafor|wipe"
+          ]
         },
         {
           "t": "Call out Jordan by name in the company chat",
           "g": "bad",
-          "w": "Shame makes people hide mistakes. You want fast reporting."
+          "w": "Shame makes people hide mistakes. You want fast reporting.",
+          "do": [
+            "desk"
+          ]
         },
         {
           "t": "Block all text messages on company phones",
           "g": "bad",
-          "w": "Overkill that breaks real communication and doesn't remove the attacker."
+          "w": "Overkill that breaks real communication and doesn't remove the attacker.",
+          "do": [
+            "desk"
+          ]
         }
       ],
       "feed": [
@@ -1471,7 +1640,67 @@
           6
         ]
       }
-    ]
+    ],
+    "console": {
+      "tools": [
+        "directory",
+        "mail",
+        "network",
+        "desk",
+        "docs"
+      ],
+      "docs": [
+        "acct",
+        "phish"
+      ],
+      "mfa": {
+        "j.okafor": [
+          "iPhone (push approvals) · enrolled 2024"
+        ]
+      },
+      "globals": {
+        "directory": [
+          {
+            "verb": "numbermatch",
+            "label": "Require number matching on all MFA prompts"
+          }
+        ]
+      },
+      "mail": {
+        "rules": [
+          {
+            "target": "Forward all mail to an outside address",
+            "owner": "j.okafor",
+            "note": "Created today 9:15 AM from Frankfurt"
+          },
+          {
+            "target": "Move newsletters to a folder",
+            "owner": "r.patel",
+            "note": "Created 2024"
+          }
+        ],
+        "messages": []
+      },
+      "network": [
+        {
+          "target": "graveyard-games-it.help",
+          "note": "Lookalike IT login page"
+        },
+        {
+          "target": "Frankfurt, Germany (hosting provider)",
+          "note": "Rented server used to sign in as Jordan"
+        },
+        {
+          "target": "Frankfurt (company VPN)",
+          "note": "Company VPN gateway"
+        }
+      ],
+      "nofx": {
+        "mail|Move newsletters to a folder|delete": "You deleted a coworker's harmless newsletter rule.",
+        "network|Frankfurt, Germany (hosting provider)|block": "That server is blocked, but the attacker still has Jordan's session and the forwarding rule keeps sending mail.",
+        "network|Frankfurt (company VPN)|block": "You cut off everyone on the company VPN. The attacker isn't using it."
+      }
+    }
   },
   {
     "id": "shield",
@@ -1563,22 +1792,26 @@
         {
           "b": "Open Riley's profile",
           "t": "Riley's profile",
-          "f": "Riley M. · External guest · invited two days ago from a personal Gmail address. Not a member of the security channel."
+          "f": "Riley M. · External guest · invited two days ago from a personal Gmail address. Not a member of the security channel.",
+          "tool": "Chat admin"
         },
         {
           "b": "Search the staff directory for Riley",
           "t": "Staff directory",
-          "f": "No one named Riley works on the security team."
+          "f": "No one named Riley works on the security team.",
+          "tool": "Directory"
         },
         {
           "b": "Check security team announcements",
           "t": "Security announcements",
-          "f": "No key rotation scheduled. Policy: tokens are only rotated in the developer portal."
+          "f": "No key rotation scheduled. Policy: tokens are only rotated in the developer portal.",
+          "tool": "Documentation"
         },
         {
           "b": "Check the anti-cheat patch date",
           "t": "Release schedule",
-          "f": "The anti-cheat patch ships next Thursday, not tonight."
+          "f": "The anti-cheat patch ships next Thursday, not tonight.",
+          "tool": "Release calendar"
         }
       ]
     },
@@ -1803,42 +2036,66 @@
         {
           "t": "Revoke the \"migration\" token and all of Kai's tokens",
           "g": "now",
-          "w": "Closes the door the attacker walked through."
+          "w": "Closes the door the attacker walked through.",
+          "do": [
+            "repo|migration|revoke"
+          ]
         },
         {
           "t": "Change the server passwords exposed in prod_keys.env",
           "g": "now",
-          "w": "The attacker can use those against live servers. Rotate them immediately."
+          "w": "The attacker can use those against live servers. Rotate them immediately.",
+          "do": [
+            "repo|prod_keys.env|rotate"
+          ]
         },
         {
           "t": "Bring in incident response and legal, and preserve the logs",
           "g": "now",
-          "w": "Extortion is a crime. Experts and evidence shape every next decision."
+          "w": "Extortion is a crime. Experts and evidence shape every next decision.",
+          "do": [
+            "desk"
+          ]
         },
         {
           "t": "Publish a statement about what was stolen",
           "g": "later",
-          "w": "Being open builds trust, after you know the facts."
+          "w": "Being open builds trust, after you know the facts.",
+          "do": [
+            "desk"
+          ]
         },
         {
           "t": "Block repository access from unknown cloud servers",
           "g": "later",
-          "w": "A strong fix, but the revoked token already stops this attacker."
+          "w": "A strong fix, but the revoked token already stops this attacker.",
+          "do": [
+            "network|Cloud server (rented)|block"
+          ]
         },
         {
           "t": "Pay the ransom so the code stays private",
           "g": "bad",
-          "w": "Paying funds the next attack, and there's no guarantee they delete anything."
+          "w": "Paying funds the next attack, and there's no guarantee they delete anything.",
+          "do": [
+            "desk"
+          ]
         },
         {
           "t": "Delete the repositories so nothing else can be taken",
           "g": "bad",
-          "w": "The copies are gone already. Deleting only destroys your own team's work."
+          "w": "The copies are gone already. Deleting only destroys your own team's work.",
+          "do": [
+            "repo|*|delete"
+          ]
         },
         {
           "t": "Keep quiet and hope it never leaks",
           "g": "bad",
-          "w": "Silence leaves players and staff unprepared."
+          "w": "Silence leaves players and staff unprepared.",
+          "do": [
+            "desk"
+          ]
         }
       ],
       "feed": [
@@ -1961,7 +2218,69 @@
           6
         ]
       }
-    ]
+    ],
+    "console": {
+      "tools": [
+        "repo",
+        "directory",
+        "network",
+        "desk",
+        "docs"
+      ],
+      "docs": [
+        "token",
+        "acct"
+      ],
+      "repo": {
+        "tokens": [
+          {
+            "target": "migration",
+            "owner": "dev.kai",
+            "note": "Created 1:52 AM · read access to every repo"
+          },
+          {
+            "target": "kai-laptop",
+            "owner": "dev.kai",
+            "note": "Created in March · used from Kai's MacBook"
+          },
+          {
+            "target": "ci-build",
+            "owner": "ci-bot",
+            "note": "Nightly build token"
+          }
+        ],
+        "secrets": [
+          {
+            "target": "prod_keys.env",
+            "note": "Live game server passwords · read at 3:20 AM"
+          }
+        ],
+        "repos": [
+          "anticheat-core",
+          "engine",
+          "game-ui",
+          "launcher"
+        ]
+      },
+      "network": [
+        {
+          "target": "Cloud server (rented)",
+          "note": "Where the stolen token is being used"
+        },
+        {
+          "target": "Seoul, South Korea",
+          "note": "Partner studio office"
+        }
+      ],
+      "nofx": {
+        "directory|dev.kai|disable": "Kai's account is disabled, but the \"migration\" token keeps working. Tokens have to be revoked on their own.",
+        "directory|dev.kai|revoke": "Kai's sign-in sessions are gone, but the attacker never signed in. They're using a token.",
+        "directory|dev.kai|reset": "New password for Kai. The attacker doesn't need it; the token still works.",
+        "repo|kai-laptop|revoke": "You revoked Kai's normal token. The attacker is using \"migration\".",
+        "repo|ci-build|revoke": "Tonight's build will fail. The attacker isn't using this token.",
+        "network|Seoul, South Korea|block": "The partner studio is locked out. The attacker isn't there."
+      }
+    }
   },
   {
     "id": "crypt",
@@ -2054,22 +2373,26 @@
         {
           "b": "Hover over the sender address",
           "t": "Sender address",
-          "f": "invoices@nightshade-loc.co. The vendor on file uses billing@nightshadelocalization.com."
+          "f": "invoices@nightshade-loc.co. The vendor on file uses billing@nightshadelocalization.com.",
+          "tool": "Mail security"
         },
         {
           "b": "Check the vendor payment records",
           "t": "Vendor records",
-          "f": "Nightshade Localization was paid in full on Oct 1. No open invoices."
+          "f": "Nightshade Localization was paid in full on Oct 1. No open invoices.",
+          "tool": "Finance records"
         },
         {
           "b": "Inspect the attachment",
           "t": "Attachment scan",
-          "f": "Invoice_Oct.docm contains macros. 2 of 60 antivirus engines flag it."
+          "f": "Invoice_Oct.docm contains macros. 2 of 60 antivirus engines flag it.",
+          "tool": "Mail security"
         },
         {
           "b": "Check the reply-to address",
           "t": "Reply-to",
-          "f": "Replies go to payments.nightshade@protonmail.com, a different address than the sender."
+          "f": "Replies go to payments.nightshade@protonmail.com, a different address than the sender.",
+          "tool": "Mail security"
         }
       ]
     },
@@ -2318,42 +2641,69 @@
         {
           "t": "Isolate PROD-PC-14 and FILESRV-02 from the network",
           "g": "now",
-          "w": "Stops the spread. Modern EDR tools can do this in one click."
+          "w": "Stops the spread. Modern EDR tools can do this in one click.",
+          "do": [
+            "endpoint|PROD-PC-14|isolate",
+            "endpoint|FILESRV-02|isolate"
+          ]
         },
         {
           "t": "Disconnect the backup server so it can't be encrypted too",
           "g": "now",
-          "w": "Your backups are the way out without paying. Protect them first."
+          "w": "Your backups are the way out without paying. Protect them first.",
+          "do": [
+            "endpoint|BACKUP-01|isolate"
+          ]
         },
         {
           "t": "Disable l.moreau and svc-admin, and reset every admin password",
           "g": "now",
-          "w": "Passwords were stolen from memory. Assume every admin password on that PC is known."
+          "w": "Passwords were stolen from memory. Assume every admin password on that PC is known.",
+          "do": [
+            "directory|svc-admin|disable",
+            "directory|l.moreau|disable",
+            "directory|svc-admin|reset"
+          ]
         },
         {
           "t": "Restore files from backups",
           "g": "later",
-          "w": "Yes, but only after the attacker is out, or they'll encrypt the restored files too."
+          "w": "Yes, but only after the attacker is out, or they'll encrypt the restored files too.",
+          "do": [
+            "desk"
+          ]
         },
         {
           "t": "Notify partners and regulators as legal advises",
           "g": "later",
-          "w": "Required in many cases, and it comes after containment."
+          "w": "Required in many cases, and it comes after containment.",
+          "do": [
+            "desk"
+          ]
         },
         {
           "t": "Pay the ransom immediately",
           "g": "bad",
-          "w": "No guarantee of a working key, and the stolen copy can still be leaked."
+          "w": "No guarantee of a working key, and the stolen copy can still be leaked.",
+          "do": [
+            "desk"
+          ]
         },
         {
           "t": "Pull the power on every computer in the building",
           "g": "bad",
-          "w": "Network isolation is more precise and keeps memory evidence investigators need."
+          "w": "Network isolation is more precise and keeps memory evidence investigators need.",
+          "do": [
+            "endpoint|*|shutdown"
+          ]
         },
         {
           "t": "Reconnect a machine to see if it spreads again",
           "g": "bad",
-          "w": "Never test on production. You'd be helping the attack along."
+          "w": "Never test on production. You'd be helping the attack along.",
+          "do": [
+            "endpoint|*|reconnect"
+          ]
         }
       ],
       "feed": [
@@ -2483,6 +2833,86 @@
           6
         ]
       }
-    ]
+    ],
+    "console": {
+      "tools": [
+        "endpoint",
+        "directory",
+        "mail",
+        "desk",
+        "docs"
+      ],
+      "docs": [
+        "ransom",
+        "acct"
+      ],
+      "globals": {
+        "endpoint": [
+          {
+            "verb": "shutdown",
+            "label": "Shut down every computer in the building"
+          }
+        ]
+      },
+      "endpoints": [
+        {
+          "target": "PROD-PC-14",
+          "owner": "l.moreau",
+          "status": "bad",
+          "note": "Alerts: macro, PowerShell, password theft"
+        },
+        {
+          "target": "FILESRV-02",
+          "owner": "File server",
+          "status": "bad",
+          "note": "Files being renamed to .crypt"
+        },
+        {
+          "target": "BACKUP-01",
+          "owner": "Backup server",
+          "status": "warn",
+          "note": "Healthy · reachable from FILESRV-02"
+        },
+        {
+          "target": "ART-PC-03",
+          "owner": "j.wu",
+          "status": "ok",
+          "note": "Healthy"
+        },
+        {
+          "target": "PROD-PC-09",
+          "owner": "a.diaz",
+          "status": "ok",
+          "note": "Healthy"
+        },
+        {
+          "target": "IT-PC-01",
+          "owner": "r.ortiz",
+          "status": "ok",
+          "note": "Healthy"
+        },
+        {
+          "target": "BUILD-01",
+          "owner": "ci-bot",
+          "status": "ok",
+          "note": "Healthy"
+        }
+      ],
+      "mail": {
+        "rules": [],
+        "messages": [
+          {
+            "target": "OVERDUE: Witch Hollow DLC translation invoice",
+            "owner": "invoices@nightshade-loc.co",
+            "note": "Delivered to 3 inboxes"
+          }
+        ]
+      },
+      "nofx": {
+        "mail|OVERDUE: Witch Hollow DLC translation invoice|purge": "Purged from 3 inboxes. Good cleanup, but the ransomware is already running.",
+        "endpoint|*|scan": "Scan started. It takes an hour, and the ransomware keeps spreading meanwhile.",
+        "directory|l.moreau|revoke": "Sessions ended, but the attacker is using the stolen admin password on the servers."
+      }
+    }
   }
 ]

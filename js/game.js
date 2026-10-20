@@ -11,7 +11,7 @@ const STAGES=[
 /* Case data lives in data/cases.json and is loaded from js/cases.js (built by tools/build_cases.py). */
 const CASES = window.CASES;
 const RULES = window.RULES;
-const BUILD = "3.0";
+const BUILD = "3.1";
 
 const app=document.getElementById("app");
 const stepsEl=document.getElementById("steps");
@@ -122,7 +122,8 @@ function start(id){
      s1:null, o1:shuf(c.s1.opts.length),
      flagged:new Set(), s2done:false,
      ev:[], evNew:null, card:null, q:"",
-     live:{started:false, done:false, used:[], log:[], next:0, tm:null}, o3:shuf(c.s3.acts.length),
+     live:{started:false, done:false, used:[], wasted:0, doneKeys:[], log:[], next:0, tm:null}, o3:shuf(c.s3.acts.length),
+     con:{tool:c.console.tools[0], user:null},
      tl:{pool:shuf(c.timeline.length), placed:[], stages:{}, done:false},
      s4:null, o4:shuf(c.s4.opts.length),
      introPlayed:false};
@@ -238,8 +239,8 @@ function station1(){
   const evid=`<div class="evid" id="evid">
     <div class="evid-head"><span class="eyebrow">Investigate</span><span class="picked-n">${S.ev.length} of ${ev.length} checked</span></div>
     <p class="muted" style="font-size:15px">Check the facts before you decide. Each check can reveal a clue.</p>
-    ${S.ev.length<ev.length?`<div class="evbtns">${ev.map((e,i)=>S.ev.includes(i)?"":`<button class="evbtn" data-a="ev" data-i="${i}"><span aria-hidden="true">⌕</span> ${e.b}</button>`).join("")}</div>`:""}
-    ${S.ev.length?`<ul class="findings">${S.ev.map(i=>`<li class="${i===nNew?"risein":""}"><span class="verdict">${ev[i].t}</span><span>${ev[i].f}</span></li>`).join("")}</ul>`:""}
+    ${S.ev.length<ev.length?`<div class="evbtns">${ev.map((e,i)=>S.ev.includes(i)?"":`<button class="evbtn" data-a="ev" data-i="${i}"><span class="evtool">${e.tool||"Check"}</span>${e.b}</button>`).join("")}</div>`:""}
+    ${S.ev.length?`<ul class="findings">${S.ev.map(i=>`<li class="${i===nNew?"risein":""}"><span class="verdict">${ev[i].tool?ev[i].tool+" · ":""}${ev[i].t}</span><span>${ev[i].f}</span></li>`).join("")}</ul>`:""}
   </div>`;
   app.innerHTML=`
   <div class="station-head"><span class="eyebrow">${c.file} · ${c.title} · Station 1</span><h2>The first contact</h2><p class="muted">${s.role}</p></div>
@@ -350,7 +351,24 @@ function grade2(){
 }
 
 const LIVE_GAP=4500, LIVE_FAST=900;
+const DOCS = window.DOCS || {};
+const TOOLS={
+  directory:{n:"Directory",i:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/>'},
+  network:{n:"Firewall & DNS",i:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'},
+  mail:{n:"Mail Admin",i:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/>'},
+  endpoint:{n:"Endpoints",i:'<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>'},
+  repo:{n:"Code Repos",i:'<path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/>'},
+  desk:{n:"Incident Desk",i:'<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>'},
+  docs:{n:"Documentation",i:'<path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2zM22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/>'}
+};
+const VERBS={revoke:"Revoke sessions",reset:"Reset password",removemfa:"Remove MFA device",disable:"Disable account",wipe:"Remote wipe phone",
+  resetall:"Force a password reset for ALL users",numbermatch:"Require number matching on all MFA prompts",shutdown:"Shut down every computer in the building",
+  block:"Block",purge:"Purge from all inboxes",isolate:"Isolate from network",scan:"Run full scan",reconnect:"Reconnect",rotate:"Rotate secrets",do:"Do it"};
+const verbLabel=(tool,verb)=> tool==="repo"&&verb==="revoke"?"Revoke token": tool==="repo"&&verb==="delete"?"Delete repository": verb==="delete"?"Delete rule": (VERBS[verb]||verb);
+const icon=t=>`<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${TOOLS[t].i}</svg>`;
+
 function stopLive(){ if(S&&S.live&&S.live.tm){clearTimeout(S.live.tm);S.live.tm=null;} }
+function moves(){ return S.live.used.length+S.live.wasted; }
 function liveTick(sess){
   if(S!==sess)return;
   const L=S.live, feed=S.c.s3.feed;
@@ -359,7 +377,7 @@ function liveTick(sess){
   L.log.push({kind:"atk",i:L.next,ok:!blocked}); L.next++;
   if(L.next>=feed.length)L.done=true;
   station3();
-  if(!L.done)L.tm=setTimeout(()=>liveTick(sess), L.used.length>=3?LIVE_FAST:LIVE_GAP);
+  if(!L.done)L.tm=setTimeout(()=>liveTick(sess), moves()>=3?LIVE_FAST:LIVE_GAP);
 }
 function liveStats(){
   const log=S.live.log.filter(x=>x.kind==="atk");
@@ -368,31 +386,92 @@ function liveStats(){
   const speed=!S.live.done?0: landed<=1?2: landed<=3?1:0;
   return {landed,blocked,good,speed};
 }
+function resolveAct(key){
+  const [tool,target,verb]=key.split("|"), acts=S.c.s3.acts;
+  if(tool==="desk") return +target;
+  return acts.findIndex(a=>a.do.some(d=>d===key||d===`${tool}|*|${verb}`));
+}
+function keyLabel(key){
+  const [tool,target,verb]=key.split("|");
+  if(tool==="desk") return `${TOOLS.desk.n} → ${S.c.s3.acts[+target].t}`;
+  return `${TOOLS[tool].n} → ${target==="*"?"Everyone":target} → ${verbLabel(tool,verb)}`;
+}
+function conAction(key){
+  const L=S.live; if(!L.started||L.done||moves()>=3||L.doneKeys.includes(key))return;
+  const act=resolveAct(key), c=S.c;
+  L.doneKeys.push(key);
+  if(act>=0&&L.used.includes(act)){ L.log.push({kind:"you",key,act,dup:true}); }
+  else if(act>=0){ L.used.push(act); L.log.push({kind:"you",key,act}); }
+  else { L.wasted++; L.log.push({kind:"you",key,act:-1,msg:(c.console.nofx||{})[key]||(c.console.nofx||{})[key.replace(/\|[^|]*\|/,"|*|")]||"Done, but it didn't touch anything the attacker is using."}); }
+  if(moves()>=3&&L.tm){clearTimeout(L.tm);const sess=S;L.tm=setTimeout(()=>liveTick(sess),LIVE_FAST);}
+  station3();
+}
+function abtn(key,extra){
+  const L=S.live, done=L.doneKeys.includes(key), dis=!L.started||L.done||moves()>=3||done;
+  const [tool,,verb]=key.split("|");
+  return `<button class="cbtn${done?" done":""}${extra?" "+extra:""}" data-a="cact" data-k="${esc(key)}" ${dis?"disabled":""}>${done?"✓ ":""}${verbLabel(tool,verb)}</button>`;
+}
+function sessionsFor(user){
+  const s2=S.c.s2, uc=s2.cols.indexOf(s2.cols.includes("User")?"User":"Account");
+  const lc=s2.cols.indexOf(s2.cols.includes("Location")?"Location":"Machine");
+  const dc=s2.cols.indexOf(s2.cols.includes("Device")?"Device":"Program");
+  const seen=[]; s2.rows.forEach(r=>{ if(r.c[uc]===user){ const k=`${r.c[lc]} · ${r.c[dc]}`; if(!seen.includes(k))seen.push(k);} });
+  return seen;
+}
+function paneHTML(){
+  const c=S.c, con=c.console, t=S.con.tool, L=S.live;
+  if(t==="directory"){
+    const users=Object.keys(c.s2.profiles), sel=S.con.user;
+    const glob=((con.globals||{}).directory||[]).map(g=>abtn(`directory|*|${g.verb}`,"wide")).join("");
+    let detail=`<p class="muted">Select a user to see their sign-ins, MFA devices, and admin actions.</p>`;
+    if(sel){ const p=c.s2.profiles[sel], mfa=(con.mfa||{})[sel]||["Phone on file"], ses=sessionsFor(sel);
+      detail=`<h3 class="mono">${sel}</h3>
+        <div class="cbtns">${["revoke","reset","removemfa","disable","wipe"].map(v=>abtn(`directory|${sel}|${v}`)).join("")}</div>
+        <dl class="kv"><dt>Role</dt><dd>${p.role}</dd><dt>Usually</dt><dd>${p.usual}</dd><dt>Devices</dt><dd>${p.devices}</dd></dl>
+        <div class="sub"><span class="msg-meta">MFA devices</span><ul class="plain">${mfa.map(m=>`<li>${m}</li>`).join("")}</ul></div>
+        <div class="sub"><span class="msg-meta">Recent sign-ins</span><ul class="plain">${ses.length?ses.map(x=>`<li>${x}</li>`).join(""):"<li>None tonight</li>"}</ul></div>`; }
+    return `${glob?`<div class="cbtns">${glob}</div>`:""}<div class="dir"><ul class="userlist">${users.map(u=>`<li><button class="ubtn${u===sel?" on":""}" data-a="cuser" data-k="${esc(u)}"><b>${u}</b><span>${c.s2.profiles[u].role}</span></button></li>`).join("")}</ul><div class="udetail">${detail}</div></div>`;
+  }
+  if(t==="network") return `<p class="muted">Block an IP, server, or domain at the firewall and DNS.</p><ul class="rows">${con.network.map(n=>`<li><div><b>${n.target}</b><span>${n.note}</span></div>${abtn(`network|${n.target}|block`)}</li>`).join("")}</ul>`;
+  if(t==="mail"){ const m=con.mail;
+    return `${m.rules.length?`<span class="msg-meta">Mailbox rules</span><ul class="rows">${m.rules.map(r=>`<li><div><b>${r.target}</b><span>${r.owner} · ${r.note}</span></div>${abtn(`mail|${r.target}|delete`)}</li>`).join("")}</ul>`:""}
+      ${m.messages.length?`<span class="msg-meta">Message trace</span><ul class="rows">${m.messages.map(r=>`<li><div><b>${r.target}</b><span>${r.owner} · ${r.note}</span></div>${abtn(`mail|${r.target}|purge`)}</li>`).join("")}</ul>`:""}`; }
+  if(t==="endpoint"){ const glob=((con.globals||{}).endpoint||[]).map(g=>abtn(`endpoint|*|${g.verb}`,"wide")).join("");
+    return `${glob?`<div class="cbtns">${glob}</div>`:""}<ul class="rows">${con.endpoints.map(e=>`<li><div><b><span class="dot ${e.status}"></span>${e.target}</b><span>${e.owner} · ${e.note}</span></div><div class="cbtns">${["isolate","scan","reconnect"].map(v=>abtn(`endpoint|${e.target}|${v}`)).join("")}</div></li>`).join("")}</ul>`; }
+  if(t==="repo"){ const r=con.repo;
+    return `<span class="msg-meta">Access tokens</span><ul class="rows">${r.tokens.map(x=>`<li><div><b class="mono">${x.target}</b><span>${x.owner} · ${x.note}</span></div>${abtn(`repo|${x.target}|revoke`)}</li>`).join("")}</ul>
+      <span class="msg-meta">Secrets</span><ul class="rows">${r.secrets.map(x=>`<li><div><b class="mono">${x.target}</b><span>${x.note}</span></div>${abtn(`repo|${x.target}|rotate`)}</li>`).join("")}</ul>
+      <span class="msg-meta">Repositories</span><ul class="rows">${r.repos.map(x=>`<li><div><b class="mono">${x}</b></div>${abtn(`repo|${x}|delete`)}</li>`).join("")}</ul>`; }
+  if(t==="desk"){ const items=S.o3.filter(i=>c.s3.acts[i].do.includes("desk"));
+    return `<p class="muted">Decisions that happen outside the admin tools.</p><ul class="rows">${items.map(i=>`<li><div><b>${c.s3.acts[i].t}</b></div>${abtn(`desk|${i}|do`)}</li>`).join("")}</ul>`; }
+  if(t==="docs") return `<p class="muted">Runbooks. Reading is free.</p>${con.docs.map(d=>DOCS[d]).filter(Boolean).map(d=>`<div class="doc"><b>${d.title}</b><ol>${d.steps.map(s=>`<li>${s}</li>`).join("")}</ol></div>`).join("")}`;
+  return "";
+}
 function station3(){
   setSteps(2);
-  const c=S.c, s=c.s3, L=S.live, feed=s.feed, st=liveStats();
+  const c=S.c, s=c.s3, L=S.live, feed=s.feed, st=liveStats(), con=c.console;
   const lab={now:["Good call","var(--ecto)"],later:["Right idea, wrong time","var(--amber)"],bad:["Makes it worse","var(--blood)"]};
-  const out=L.used.length>=3;
-  const acts=S.o3.map(i=>{
-    const a=s.acts[i], used=L.used.includes(i); let cls="act";
-    if(used) cls+= a.g==="now"?" good sel": a.g==="later"?" laterpick":" badpick";
-    else if(L.done&&a.g==="now") cls+=" missed";
-    const label= used?`<span class="verdict" style="color:${lab[a.g][1]}">${lab[a.g][0]}</span>`: (L.done&&a.g==="now")?`<span class="verdict" style="color:var(--ecto)">You missed this one</span>`:"";
-    return `<button class="${cls}" data-a="act" data-i="${i}" ${(!L.started||used||out||L.done)?"disabled":""} aria-pressed="${used}">${label}<b>${a.t}</b>${used||(L.done&&a.g==="now")?`<span class="why2">${a.w}</span>`:""}</button>`;
-  }).join("");
-  const lines=L.log.map(x=>{
-    if(x.kind==="atk"){ const e=feed[x.i]; return `<li class="${x.ok?"landed":"blocked"} ${x===L.log[L.log.length-1]?"risein":""}"><span class="verdict">${x.ok?"Attacker succeeded":"Blocked"}</span><span>${e.t}</span></li>`; }
-    const a=s.acts[x.i]; return `<li class="you ${x===L.log[L.log.length-1]?"risein":""}"><span class="verdict">You · ${lab[a.g][0]}</span><span>${a.t}</span></li>`;
+  const left=3-moves();
+  const lines=L.log.map((x,k)=>{
+    const fresh=k===L.log.length-1?" risein":"";
+    if(x.kind==="atk"){ const e=feed[x.i]; return `<li class="${x.ok?"landed":"blocked"}${fresh}"><span class="verdict">${x.ok?"Attacker succeeded":"Blocked"}</span><span>${e.t}</span></li>`; }
+    if(x.dup) return `<li class="you${fresh}"><span class="verdict">You · Already covered (free)</span><span>${keyLabel(x.key)}</span></li>`;
+    if(x.act<0) return `<li class="you wasted${fresh}"><span class="verdict">You · No effect</span><span>${keyLabel(x.key)}</span><span class="why2">${x.msg}</span></li>`;
+    const a=s.acts[x.act]; return `<li class="you${fresh}"><span class="verdict" style="color:${lab[a.g][1]}">You · ${lab[a.g][0]}</span><span>${keyLabel(x.key)}</span><span class="why2">${a.w}</span></li>`;
   }).reverse().join("");
   const pct=Math.round(st.landed/feed.length*100);
-  const status=!L.started?`<div class="golive"><p>The attacker is still active. When you go live, their next moves appear every few seconds. <b>You get 3 moves</b>, and each one takes effect immediately. Read your options first.</p><button class="btn" data-a="golive">Go live</button></div>`
-    : L.done?`<div class="fb ${st.landed<=1?"best":st.landed<=3?"ok":"bad"}"><span class="verdict">${st.blocked} of ${feed.length} attacker moves blocked${st.speed?` · +${st.speed} speed bonus`:""}</span><p>${st.landed<=1?"Fast, focused containment. The attacker barely got anything done.":st.landed<=3?"The attacker got some moves in before you shut them down.":"The attacker kept working. The moves that cut off access had to come first."}</p></div>`
-    : `<p class="picked-n">${out?"All 3 moves used. Watching what happens next…":`${3-L.used.length} move${3-L.used.length===1?"":"s"} left`}</p>`;
+  const status=!L.started?`<div class="golive"><p>The attacker is still active. Look around the console first: browsing and reading are free. When you go live, the attacker's next moves start appearing. <b>Each admin action uses one of your 3 moves</b> and takes effect immediately.</p><button class="btn" data-a="golive">Go live</button></div>`
+    : L.done?`<div class="fb ${st.landed<=1?"best":st.landed<=3?"ok":"bad"}"><span class="verdict">${st.blocked} of ${feed.length} attacker moves blocked${st.speed?` · +${st.speed} speed bonus`:""}</span><p>${st.landed<=1?"Fast, focused containment.":st.landed<=3?"The attacker got some moves in before you shut them down.":"The attacker kept working. The actions that cut off access had to come first."}</p></div>`
+    : `<p class="picked-n">${left>0?`${left} move${left===1?"":"s"} left`:"All 3 moves used. Watching what happens next…"}</p>`;
+  const answers=L.done?`<div class="panel"><span class="msg-meta">The 3 actions that stop this attack</span><ol class="plain-ol">${s.acts.filter(a=>a.g==="now").map(a=>`<li><b>${a.do[0]==="desk"?TOOLS.desk.n+" → "+a.t:keyLabel(a.do[0])}</b><span class="why2">${a.w}</span></li>`).join("")}</ol></div>`:"";
   app.innerHTML=`
-  <div class="station-head"><span class="eyebrow">${c.file} · Station 3</span><h2>Contain the attack</h2><p class="muted">${s.intro.replace("Pick the 3 moves you make first.","").replace("Pick your 3 first moves.","")} The attacker keeps moving while you decide. Only moves that cut off the attacker stop their next steps.</p></div>
+  <div class="station-head"><span class="eyebrow">${c.file} · Station 3</span><h2>Contain the attack</h2><p class="muted">Use the IT console to cut the attacker off. Pick the right tool, the right target, and the right action. Acting on the wrong account or machine wastes a move.</p></div>
   ${onPoint(2)}
   <div class="live-grid">
-    <div class="panel"><span class="msg-meta">Your moves</span><div class="actions">${acts}</div></div>
+    <div class="console">
+      <nav class="cnav" aria-label="Console tools">${con.tools.map(t=>`<button class="ctool${S.con.tool===t?" on":""}" data-a="ctool" data-k="${t}">${icon(t)}<span>${TOOLS[t].n}</span></button>`).join("")}</nav>
+      <div class="cpane"><div class="cpane-head">${icon(S.con.tool)}<b>${TOOLS[S.con.tool].n}</b>${!L.started?`<span class="picked-n">Go live to take actions</span>`:""}</div>${paneHTML()}</div>
+    </div>
     <div class="panel feed">
       <div class="feed-head"><span class="msg-meta">${L.started&&!L.done?'<span class="live">Live</span> · ':""}Attacker activity</span><span class="picked-n">${st.landed} got through</span></div>
       <div class="meter" role="img" aria-label="Damage ${pct} percent"><i style="width:${pct}%"></i></div>
@@ -400,6 +479,7 @@ function station3(){
       <ul class="feedlist">${lines}</ul>
     </div>
   </div>
+  ${answers}
   ${L.done?`<div class="btn-row"><button class="btn" data-a="toT">Go to Station 4: Timeline</button></div>`:""}`;
 }
 
@@ -523,10 +603,9 @@ app.addEventListener("click",e=>{
   else if(a==="filteru"){const s2=S.c.s2,uc=s2.cols.indexOf(s2.cols.includes("User")?"User":"Account");S.q=s2.rows[i].c[uc];station2();}
   else if(a==="to3"){station3();toTop();}
   else if(a==="golive"&&!S.live.started){S.live.started=true;station3();const sess=S;S.live.tm=setTimeout(()=>liveTick(sess),1500);}
-  else if(a==="act"&&S.live.started&&!S.live.done&&S.live.used.length<3&&!S.live.used.includes(i)){
-    S.live.used.push(i);S.live.log.push({kind:"you",i});
-    if(S.live.used.length>=3&&S.live.tm){clearTimeout(S.live.tm);const sess=S;S.live.tm=setTimeout(()=>liveTick(sess),LIVE_FAST);}
-    station3();}
+  else if(a==="cact"){conAction(el.dataset.k);}
+  else if(a==="ctool"){S.con.tool=el.dataset.k;station3();}
+  else if(a==="cuser"){S.con.user=el.dataset.k;station3();}
   else if(a==="toT"){stopLive();stationT();toTop();}
   else if(a==="place"&&!S.tl.done&&!S.tl.placed.includes(i)){S.tl.placed.push(i);stationT();}
   else if(a==="unplace"&&!S.tl.done){S.tl.placed=S.tl.placed.filter(x=>x!==i);stationT();}

@@ -6,7 +6,7 @@ Players are the newest security analyst at Graveyard Games, a fictional studio d
 
 1. **The Call** – investigate the first contact (check caller ID, hover links, read headers, search the staff directory), spot the red flags, and choose a response.
 2. **Log Hunt** – find the attacker in a log full of red herrings, using analyst notes, clickable user profiles, IP and machine lookups, and log search. Then compare your findings with the **Auto-Analyst**, a detection script that runs on the same log.
-3. **Contain** – the attacker keeps acting in a live activity feed while you choose. You get three moves, each takes effect immediately, and faster containment blocks more damage.
+3. **Contain** – use a simulated IT console (Directory, Firewall & DNS, Mail Admin, Endpoints, Code Repos, Incident Desk, and runbooks) to cut the attacker off while they keep acting in a live feed. Browsing is free; each admin action uses one of three moves, and acting on the wrong account, machine, or token wastes one.
 4. **Timeline** – rebuild the attack in order and tag each step with its Cyber Kill Chain stage, the way an incident report starts.
 5. **The Brief** – choose the accurate summary to send leadership.
 
@@ -54,7 +54,8 @@ js/cases.js           generated from data/cases.json
 js/rules.js           generated from data/rules.json
 data/cases.json       all case content (source of truth)
 data/rules.json       detection rules (source of truth)
-tools/build_cases.py  validates the JSON and builds js/cases.js and js/rules.js
+data/docs.json        console runbooks
+tools/build_cases.py  validates the JSON and builds js/cases.js, js/rules.js, and js/docs.js
 tools/detect.py       detection engine (Python CLI)
 tools/bundle.py       builds dist/haunted-studio.html, a single offline file
 tests/                unit tests for the detection engine
