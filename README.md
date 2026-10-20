@@ -44,7 +44,8 @@ The rules catch most attacker activity but are deliberately realistic: they rais
 ## Project structure
 
 ```
-index.html            page shell
+index.html            the live page (built by tools/bundle.py; everything inlined)
+app.html              development page that links css/ and js/
 css/style.css         styles
 js/game.js            game logic and UI
 js/detect.js          detection engine (browser)
@@ -63,7 +64,7 @@ reports/              sample detection report
 
 1. Edit `data/cases.json` or `data/rules.json`.
 2. Run `python tools/build_cases.py`. It checks every case (one best answer, three "now" moves, matching log columns) and rebuilds the JS data files.
-3. Optionally run `python tools/bundle.py` to refresh the offline file.
+3. Run `python tools/bundle.py` to rebuild `index.html` and the offline file.
 
 ## Run it
 

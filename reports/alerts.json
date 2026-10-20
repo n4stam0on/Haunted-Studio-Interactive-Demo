@@ -1,0 +1,624 @@
+[
+  {
+    "id": "caller",
+    "title": "The Midnight Caller",
+    "difficulty": "Easy",
+    "alerts": [
+      {
+        "row": 5,
+        "rule": "HS-004",
+        "title": "Unusually large transfer or bulk action",
+        "severity": "medium",
+        "technique": null,
+        "technique_name": "Behavior anomaly",
+        "detail": "210 GB moved",
+        "time": "11:30 PM",
+        "user": "svc-backup",
+        "true_positive": false
+      },
+      {
+        "row": 6,
+        "rule": "HS-011",
+        "title": "MFA method changed",
+        "severity": "high",
+        "technique": "T1098.005",
+        "technique_name": "Device Registration",
+        "detail": "matched \"MFA reset approved\"",
+        "time": "11:52 PM",
+        "user": "m.vane",
+        "true_positive": true
+      },
+      {
+        "row": 7,
+        "rule": "HS-011",
+        "title": "MFA method changed",
+        "severity": "high",
+        "technique": "T1098.005",
+        "technique_name": "Device Registration",
+        "detail": "matched \"MFA phone enrolled\"",
+        "time": "11:52 PM",
+        "user": "m.vane",
+        "true_positive": true
+      },
+      {
+        "row": 8,
+        "rule": "HS-002",
+        "title": "Impossible travel",
+        "severity": "high",
+        "technique": "T1078",
+        "technique_name": "Valid Accounts",
+        "detail": "San Antonio to Bucharest in 2 min",
+        "time": "11:54 PM",
+        "user": "m.vane",
+        "true_positive": true
+      },
+      {
+        "row": 8,
+        "rule": "HS-001",
+        "title": "Activity from an unrecognized device",
+        "severity": "medium",
+        "technique": "T1078",
+        "technique_name": "Valid Accounts",
+        "detail": "matched \"Unknown\"",
+        "time": "11:54 PM",
+        "user": "m.vane",
+        "true_positive": true
+      },
+      {
+        "row": 9,
+        "rule": "HS-001",
+        "title": "Activity from an unrecognized device",
+        "severity": "medium",
+        "technique": "T1078",
+        "technique_name": "Valid Accounts",
+        "detail": "matched \"Unknown\"",
+        "time": "11:58 PM",
+        "user": "m.vane",
+        "true_positive": true
+      },
+      {
+        "row": 10,
+        "rule": "HS-001",
+        "title": "Activity from an unrecognized device",
+        "severity": "medium",
+        "technique": "T1078",
+        "technique_name": "Valid Accounts",
+        "detail": "matched \"Unknown\"",
+        "time": "12:07 AM",
+        "user": "m.vane",
+        "true_positive": true
+      },
+      {
+        "row": 10,
+        "rule": "HS-004",
+        "title": "Unusually large transfer or bulk action",
+        "severity": "medium",
+        "technique": null,
+        "technique_name": "Behavior anomaly",
+        "detail": "38 GB moved",
+        "time": "12:07 AM",
+        "user": "m.vane",
+        "true_positive": true
+      }
+    ],
+    "score": {
+      "rows": 13,
+      "suspicious": 5,
+      "flagged": 6,
+      "true_positives": 5,
+      "false_positives": 1,
+      "missed": 0,
+      "precision": 0.83,
+      "recall": 1.0,
+      "missed_rows": []
+    }
+  },
+  {
+    "id": "launcher",
+    "title": "The Cursed Launcher",
+    "difficulty": "Medium",
+    "alerts": [
+      {
+        "row": 1,
+        "rule": "HS-004",
+        "title": "Unusually large transfer or bulk action",
+        "severity": "medium",
+        "technique": null,
+        "technique_name": "Behavior anomaly",
+        "detail": "340 players in one action",
+        "time": "2:30 PM",
+        "user": "agent.dana",
+        "true_positive": false
+      },
+      {
+        "row": 4,
+        "rule": "HS-002",
+        "title": "Impossible travel",
+        "severity": "high",
+        "technique": "T1078",
+        "technique_name": "Valid Accounts",
+        "detail": "Manila to Amsterdam in 4 min",
+        "time": "3:02 PM",
+        "user": "vendor.oscar",
+        "true_positive": true
+      },
+      {
+        "row": 4,
+        "rule": "HS-001",
+        "title": "Activity from an unrecognized device",
+        "severity": "medium",
+        "technique": "T1078",
+        "technique_name": "Valid Accounts",
+        "detail": "matched \"Unknown\"",
+        "time": "3:02 PM",
+        "user": "vendor.oscar",
+        "true_positive": true
+      },
+      {
+        "row": 5,
+        "rule": "HS-001",
+        "title": "Activity from an unrecognized device",
+        "severity": "medium",
+        "technique": "T1078",
+        "technique_name": "Valid Accounts",
+        "detail": "matched \"Unknown\"",
+        "time": "3:03 PM",
+        "user": "vendor.oscar",
+        "true_positive": true
+      },
+      {
+        "row": 6,
+        "rule": "HS-001",
+        "title": "Activity from an unrecognized device",
+        "severity": "medium",
+        "technique": "T1078",
+        "technique_name": "Valid Accounts",
+        "detail": "matched \"Unknown\"",
+        "time": "3:05 PM",
+        "user": "vendor.oscar",
+        "true_positive": true
+      },
+      {
+        "row": 7,
+        "rule": "HS-003",
+        "title": "Lookalike of the company domain",
+        "severity": "high",
+        "technique": "T1566.002",
+        "technique_name": "Spearphishing Link",
+        "detail": "files-graveyardgames.com is not graveyardgames.com",
+        "time": "3:07 PM",
+        "user": "vendor.oscar",
+        "true_positive": true
+      },
+      {
+        "row": 7,
+        "rule": "HS-001",
+        "title": "Activity from an unrecognized device",
+        "severity": "medium",
+        "technique": "T1078",
+        "technique_name": "Valid Accounts",
+        "detail": "matched \"Unknown\"",
+        "time": "3:07 PM",
+        "user": "vendor.oscar",
+        "true_positive": true
+      },
+      {
+        "row": 8,
+        "rule": "HS-001",
+        "title": "Activity from an unrecognized device",
+        "severity": "medium",
+        "technique": "T1078",
+        "technique_name": "Valid Accounts",
+        "detail": "matched \"Unknown\"",
+        "time": "3:09 PM",
+        "user": "vendor.oscar",
+        "true_positive": true
+      },
+      {
+        "row": 8,
+        "rule": "HS-004",
+        "title": "Unusually large transfer or bulk action",
+        "severity": "medium",
+        "technique": null,
+        "technique_name": "Behavior anomaly",
+        "detail": "48,000 players in one action",
+        "time": "3:09 PM",
+        "user": "vendor.oscar",
+        "true_positive": true
+      },
+      {
+        "row": 12,
+        "rule": "HS-002",
+        "title": "Impossible travel",
+        "severity": "high",
+        "technique": "T1078",
+        "technique_name": "Valid Accounts",
+        "detail": "Amsterdam to Manila in 31 min",
+        "time": "3:40 PM",
+        "user": "vendor.oscar",
+        "true_positive": false
+      }
+    ],
+    "score": {
+      "rows": 13,
+      "suspicious": 5,
+      "flagged": 7,
+      "true_positives": 5,
+      "false_positives": 2,
+      "missed": 0,
+      "precision": 0.71,
+      "recall": 1.0,
+      "missed_rows": []
+    }
+  },
+  {
+    "id": "text",
+    "title": "The Text from Beyond",
+    "difficulty": "Easy",
+    "alerts": [
+      {
+        "row": 4,
+        "rule": "HS-003",
+        "title": "Lookalike of the company domain",
+        "severity": "high",
+        "technique": "T1566.002",
+        "technique_name": "Spearphishing Link",
+        "detail": "graveyard-games-it.help is not graveyardgames.com",
+        "time": "9:12 AM",
+        "user": "j.okafor",
+        "true_positive": true
+      },
+      {
+        "row": 6,
+        "rule": "HS-002",
+        "title": "Impossible travel",
+        "severity": "high",
+        "technique": "T1078",
+        "technique_name": "Valid Accounts",
+        "detail": "San Antonio to Frankfurt in 1 min",
+        "time": "9:14 AM",
+        "user": "j.okafor",
+        "true_positive": true
+      },
+      {
+        "row": 6,
+        "rule": "HS-001",
+        "title": "Activity from an unrecognized device",
+        "severity": "medium",
+        "technique": "T1078",
+        "technique_name": "Valid Accounts",
+        "detail": "matched \"(new)\"",
+        "time": "9:14 AM",
+        "user": "j.okafor",
+        "true_positive": true
+      },
+      {
+        "row": 7,
+        "rule": "HS-010",
+        "title": "Mail forwarding rule created",
+        "severity": "high",
+        "technique": "T1114.003",
+        "technique_name": "Email Forwarding Rule",
+        "detail": "matched \"forward all mail\"",
+        "time": "9:15 AM",
+        "user": "j.okafor",
+        "true_positive": true
+      },
+      {
+        "row": 7,
+        "rule": "HS-001",
+        "title": "Activity from an unrecognized device",
+        "severity": "medium",
+        "technique": "T1078",
+        "technique_name": "Valid Accounts",
+        "detail": "matched \"(new)\"",
+        "time": "9:15 AM",
+        "user": "j.okafor",
+        "true_positive": true
+      },
+      {
+        "row": 8,
+        "rule": "HS-001",
+        "title": "Activity from an unrecognized device",
+        "severity": "medium",
+        "technique": "T1078",
+        "technique_name": "Valid Accounts",
+        "detail": "matched \"(new)\"",
+        "time": "9:16 AM",
+        "user": "j.okafor",
+        "true_positive": true
+      },
+      {
+        "row": 12,
+        "rule": "HS-002",
+        "title": "Impossible travel",
+        "severity": "high",
+        "technique": "T1078",
+        "technique_name": "Valid Accounts",
+        "detail": "Frankfurt to San Antonio in 24 min",
+        "time": "9:40 AM",
+        "user": "j.okafor",
+        "true_positive": false
+      }
+    ],
+    "score": {
+      "rows": 13,
+      "suspicious": 5,
+      "flagged": 5,
+      "true_positives": 4,
+      "false_positives": 1,
+      "missed": 1,
+      "precision": 0.8,
+      "recall": 0.8,
+      "missed_rows": [
+        5
+      ]
+    }
+  },
+  {
+    "id": "shield",
+    "title": "The Stolen Shield",
+    "difficulty": "Hard",
+    "alerts": [
+      {
+        "row": 3,
+        "rule": "HS-012",
+        "title": "New access token created",
+        "severity": "low",
+        "technique": "T1098.001",
+        "technique_name": "Additional Cloud Credentials",
+        "detail": "matched \"Created access token\"",
+        "time": "1:52 AM",
+        "user": "dev.kai",
+        "true_positive": true
+      },
+      {
+        "row": 6,
+        "rule": "HS-002",
+        "title": "Impossible travel",
+        "severity": "high",
+        "technique": "T1078",
+        "technique_name": "Valid Accounts",
+        "detail": "San Antonio to Cloud Server in 55 min",
+        "time": "2:47 AM",
+        "user": "dev.kai",
+        "true_positive": true
+      },
+      {
+        "row": 6,
+        "rule": "HS-001",
+        "title": "Activity from an unrecognized device",
+        "severity": "medium",
+        "technique": "T1078",
+        "technique_name": "Valid Accounts",
+        "detail": "matched \"Script\"",
+        "time": "2:47 AM",
+        "user": "dev.kai",
+        "true_positive": true
+      },
+      {
+        "row": 7,
+        "rule": "HS-001",
+        "title": "Activity from an unrecognized device",
+        "severity": "medium",
+        "technique": "T1078",
+        "technique_name": "Valid Accounts",
+        "detail": "matched \"Script\"",
+        "time": "2:49 AM",
+        "user": "dev.kai",
+        "true_positive": true
+      },
+      {
+        "row": 8,
+        "rule": "HS-001",
+        "title": "Activity from an unrecognized device",
+        "severity": "medium",
+        "technique": "T1078",
+        "technique_name": "Valid Accounts",
+        "detail": "matched \"Script\"",
+        "time": "2:53 AM",
+        "user": "dev.kai",
+        "true_positive": true
+      },
+      {
+        "row": 9,
+        "rule": "HS-001",
+        "title": "Activity from an unrecognized device",
+        "severity": "medium",
+        "technique": "T1078",
+        "technique_name": "Valid Accounts",
+        "detail": "matched \"Script\"",
+        "time": "2:58 AM",
+        "user": "dev.kai",
+        "true_positive": true
+      },
+      {
+        "row": 9,
+        "rule": "HS-004",
+        "title": "Unusually large transfer or bulk action",
+        "severity": "medium",
+        "technique": null,
+        "technique_name": "Behavior anomaly",
+        "detail": "214 repositories in one action",
+        "time": "2:58 AM",
+        "user": "dev.kai",
+        "true_positive": true
+      },
+      {
+        "row": 11,
+        "rule": "HS-013",
+        "title": "Secrets file accessed",
+        "severity": "high",
+        "technique": "T1552.001",
+        "technique_name": "Credentials In Files",
+        "detail": "matched \"prod_keys\"",
+        "time": "3:20 AM",
+        "user": "dev.kai",
+        "true_positive": true
+      },
+      {
+        "row": 11,
+        "rule": "HS-001",
+        "title": "Activity from an unrecognized device",
+        "severity": "medium",
+        "technique": "T1078",
+        "technique_name": "Valid Accounts",
+        "detail": "matched \"Script\"",
+        "time": "3:20 AM",
+        "user": "dev.kai",
+        "true_positive": true
+      }
+    ],
+    "score": {
+      "rows": 13,
+      "suspicious": 6,
+      "flagged": 6,
+      "true_positives": 6,
+      "false_positives": 0,
+      "missed": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "missed_rows": []
+    }
+  },
+  {
+    "id": "crypt",
+    "title": "The Locked Crypt",
+    "difficulty": "Hard",
+    "alerts": [
+      {
+        "row": 1,
+        "rule": "HS-005",
+        "title": "Office macro executed",
+        "severity": "high",
+        "technique": "T1204.002",
+        "technique_name": "Malicious File",
+        "detail": "matched \"macros enabled\"",
+        "time": "10:02 AM",
+        "user": "l.moreau",
+        "true_positive": true
+      },
+      {
+        "row": 2,
+        "rule": "HS-006",
+        "title": "Obfuscated PowerShell",
+        "severity": "high",
+        "technique": "T1059.001",
+        "technique_name": "PowerShell",
+        "detail": "matched \"powershell.exe Ran hidden, scrambled\"",
+        "time": "10:03 AM",
+        "user": "l.moreau",
+        "true_positive": true
+      },
+      {
+        "row": 3,
+        "rule": "HS-014",
+        "title": "Executable downloaded",
+        "severity": "high",
+        "technique": "T1105",
+        "technique_name": "Ingress Tool Transfer",
+        "detail": "matched \"Downloaded update.exe\"",
+        "time": "10:04 AM",
+        "user": "l.moreau",
+        "true_positive": true
+      },
+      {
+        "row": 6,
+        "rule": "HS-007",
+        "title": "Credential dumping",
+        "severity": "critical",
+        "technique": "T1003",
+        "technique_name": "OS Credential Dumping",
+        "detail": "matched \"passwords from Windows memory\"",
+        "time": "10:12 AM",
+        "user": "l.moreau",
+        "true_positive": true
+      },
+      {
+        "row": 9,
+        "rule": "HS-015",
+        "title": "Known exfiltration tool",
+        "severity": "high",
+        "technique": "T1567.002",
+        "technique_name": "Exfiltration to Cloud Storage",
+        "detail": "matched \"rclone\"",
+        "time": "10:20 AM",
+        "user": "l.moreau",
+        "true_positive": true
+      },
+      {
+        "row": 9,
+        "rule": "HS-004",
+        "title": "Unusually large transfer or bulk action",
+        "severity": "medium",
+        "technique": null,
+        "technique_name": "Behavior anomaly",
+        "detail": "120 GB moved",
+        "time": "10:20 AM",
+        "user": "l.moreau",
+        "true_positive": true
+      },
+      {
+        "row": 10,
+        "rule": "HS-004",
+        "title": "Unusually large transfer or bulk action",
+        "severity": "medium",
+        "technique": null,
+        "technique_name": "Behavior anomaly",
+        "detail": "300 GB moved",
+        "time": "10:25 AM",
+        "user": "svc-backup",
+        "true_positive": false
+      },
+      {
+        "row": 12,
+        "rule": "HS-008",
+        "title": "Recovery snapshots deleted",
+        "severity": "critical",
+        "technique": "T1490",
+        "technique_name": "Inhibit System Recovery",
+        "detail": "matched \"backup snapshots\"",
+        "time": "10:41 AM",
+        "user": "svc-admin",
+        "true_positive": true
+      },
+      {
+        "row": 13,
+        "rule": "HS-009",
+        "title": "Mass file encryption",
+        "severity": "critical",
+        "technique": "T1486",
+        "technique_name": "Data Encrypted for Impact",
+        "detail": "matched \".crypt\"",
+        "time": "10:42 AM",
+        "user": "svc-admin",
+        "true_positive": true
+      },
+      {
+        "row": 13,
+        "rule": "HS-004",
+        "title": "Unusually large transfer or bulk action",
+        "severity": "medium",
+        "technique": null,
+        "technique_name": "Behavior anomaly",
+        "detail": "30,000 files in one action",
+        "time": "10:42 AM",
+        "user": "svc-admin",
+        "true_positive": true
+      }
+    ],
+    "score": {
+      "rows": 14,
+      "suspicious": 8,
+      "flagged": 8,
+      "true_positives": 7,
+      "false_positives": 1,
+      "missed": 1,
+      "precision": 0.88,
+      "recall": 0.88,
+      "missed_rows": [
+        8
+      ]
+    }
+  }
+]

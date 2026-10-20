@@ -1,0 +1,1808 @@
+[
+  {
+    "id": "caller",
+    "file": "CASE 0451",
+    "title": "The Midnight Caller",
+    "diff": "Easy",
+    "teaser": "A developer calls the help desk at midnight, locked out and desperate.",
+    "s1": {
+      "role": "You are working the help desk phone tonight.",
+      "msg": {
+        "type": "call",
+        "meta": "Help desk line · 11:48 PM",
+        "lines": [
+          [
+            "Caller",
+            "Hey, it's Marcus Vane from the engine team. I'm at the airport and I lost my phone, so I can't get my login code."
+          ],
+          [
+            "Caller",
+            "The launch build has to go out tonight or my lead is going to lose it. Can you reset my MFA and send the new code to this number instead?"
+          ]
+        ]
+      },
+      "flags": [
+        {
+          "t": "He says it has to happen tonight or he's in trouble",
+          "r": true,
+          "w": "Pressure and deadlines rush people past their normal checks."
+        },
+        {
+          "t": "He wants the code sent to a new phone number",
+          "r": true,
+          "w": "A new number means the code goes to whoever is holding that phone, which may not be Marcus."
+        },
+        {
+          "t": "He has a reason you can't reach him on his usual phone",
+          "r": true,
+          "w": "\"I lost my phone\" conveniently blocks the easiest way to verify him."
+        },
+        {
+          "t": "He called the official help desk number",
+          "r": false,
+          "w": "Anyone can dial the help desk. That's normal, not a warning sign."
+        },
+        {
+          "t": "He gave his full name and his team",
+          "r": false,
+          "w": "Names and teams are easy to find on LinkedIn. Not a red flag, but not proof either."
+        },
+        {
+          "t": "He's asking for an MFA reset",
+          "r": false,
+          "w": "People really do lose phones. The request itself is normal; how you verify it is what matters."
+        }
+      ],
+      "q": "What do you do?",
+      "opts": [
+        {
+          "t": [
+            "Reset it. He knows his name, his team, and details about the launch.",
+            "Go ahead with the reset, since he knows real details about the team and launch."
+          ],
+          "v": "bad",
+          "pts": 0,
+          "f": "Knowing details proves nothing. Team names and launch dates are easy to find. A rushed reset hands the account to whoever is on the phone."
+        },
+        {
+          "t": [
+            "Confirm his employee ID and date of birth, then do the reset.",
+            "Ask for his employee ID and birthday to verify him before resetting."
+          ],
+          "v": "ok",
+          "pts": 1,
+          "f": "Better than nothing, but that information turns up in data leaks and on social media. An attacker may already have it."
+        },
+        {
+          "t": [
+            "Call him back on the number listed in the company directory.",
+            "Hang up and call back using the number already on file for Marcus."
+          ],
+          "v": "best",
+          "pts": 3,
+          "f": "Verifying through a channel you already trust is the move. If the caller is a fake, the real Marcus picks up and is confused. You could also confirm with his manager."
+        },
+        {
+          "t": [
+            "Send the reset link to his work email instead of the new number.",
+            "Skip the new number and email the reset to his company inbox."
+          ],
+          "v": "ok",
+          "pts": 1,
+          "f": "Safer than texting a new number. But if his account is already compromised, the attacker reads that email too."
+        }
+      ]
+    },
+    "s2": {
+      "source": "Identity provider · sign-in log",
+      "intro": "Someone else took the call last night and reset the MFA. Find the entries that show the attacker at work.",
+      "notes": [
+        "Help desk policy: MFA resets require a callback to the number on file.",
+        "j.cole is on approved vacation in Mexico City this week.",
+        "Overnight staff connect through the company VPN, which shows up as Frankfurt, Germany.",
+        "Marcus Vane works from San Antonio and has no travel on file."
+      ],
+      "cols": [
+        "Time",
+        "User",
+        "Location",
+        "Device",
+        "Event",
+        "Result"
+      ],
+      "rows": [
+        {
+          "c": [
+            "10:15 PM",
+            "m.vane",
+            "San Antonio, TX",
+            "Windows laptop (known)",
+            "Sign in",
+            "Success"
+          ],
+          "s": false,
+          "w": "Marcus signing in from his usual laptop, at home, before the call."
+        },
+        {
+          "c": [
+            "10:58 PM",
+            "j.cole",
+            "Mexico City, Mexico",
+            "iPhone (known)",
+            "Sign in",
+            "Success"
+          ],
+          "s": false,
+          "w": "Scary at first glance, but the notes say j.cole is on vacation there, on a known phone."
+        },
+        {
+          "c": [
+            "11:05 PM",
+            "svc-build",
+            "Data center",
+            "Build server",
+            "Started nightly build launch_rc3",
+            "Success"
+          ],
+          "s": false,
+          "w": "The automated build system doing its scheduled job."
+        },
+        {
+          "c": [
+            "11:20 PM",
+            "a.rios",
+            "Austin, TX",
+            "MacBook (known)",
+            "Sign in",
+            "Failed: wrong password"
+          ],
+          "s": false,
+          "w": "One failed login is usually a typo..."
+        },
+        {
+          "c": [
+            "11:21 PM",
+            "a.rios",
+            "Austin, TX",
+            "MacBook (known)",
+            "Sign in",
+            "Success"
+          ],
+          "s": false,
+          "w": "...followed by a normal login a minute later."
+        },
+        {
+          "c": [
+            "11:30 PM",
+            "svc-backup",
+            "Data center",
+            "Backup server",
+            "Copied 210 GB to backup storage",
+            "Success"
+          ],
+          "s": false,
+          "w": "Big, but it's the nightly backup going to company storage."
+        },
+        {
+          "c": [
+            "11:52 PM",
+            "m.vane",
+            "Help desk portal",
+            "Agent: h.lee",
+            "MFA reset approved (ticket: \"verified by phone\")",
+            "Success"
+          ],
+          "s": true,
+          "w": "The policy requires a callback. \"Verified by phone\" on an inbound call means the help desk skipped it."
+        },
+        {
+          "c": [
+            "11:52 PM",
+            "m.vane",
+            "San Antonio, TX",
+            "Help desk portal",
+            "New MFA phone enrolled (+40 country code)",
+            "Success"
+          ],
+          "s": true,
+          "w": "A login phone from another country (+40 is Romania), added right after the reset."
+        },
+        {
+          "c": [
+            "11:54 PM",
+            "m.vane",
+            "Bucharest, Romania",
+            "Unknown Linux device",
+            "Sign in",
+            "Success"
+          ],
+          "s": true,
+          "w": "Marcus has no travel on file. A brand-new device in Romania minutes after the reset."
+        },
+        {
+          "c": [
+            "11:58 PM",
+            "m.vane",
+            "Bucharest, Romania",
+            "Unknown Linux device",
+            "Searched wiki: \"where is the release build\"",
+            "Success"
+          ],
+          "s": true,
+          "w": "The real Marcus knows where the build is. The attacker is looking around."
+        },
+        {
+          "c": [
+            "12:07 AM",
+            "m.vane",
+            "Bucharest, Romania",
+            "Unknown Linux device",
+            "Download build_final.zip (38 GB)",
+            "Success"
+          ],
+          "s": true,
+          "w": "The unreleased game walking out the door. This is the leak."
+        },
+        {
+          "c": [
+            "12:10 AM",
+            "k.tran",
+            "San Antonio, TX",
+            "Windows laptop (known)",
+            "Sign in",
+            "Failed: wrong password"
+          ],
+          "s": false,
+          "w": "A single typo from a known device."
+        },
+        {
+          "c": [
+            "12:15 AM",
+            "d.nguyen",
+            "Frankfurt (company VPN)",
+            "Windows laptop (known)",
+            "Sign in",
+            "Success"
+          ],
+          "s": false,
+          "w": "The notes say the company VPN shows up as Frankfurt. Known device, normal overnight work."
+        }
+      ]
+    },
+    "s3": {
+      "intro": "The attacker is inside Marcus's account right now. Pick the 3 moves you make first.",
+      "acts": [
+        {
+          "t": "End all of Marcus's active sessions",
+          "g": "now",
+          "w": "Kicks the attacker out of every place they're logged in right now."
+        },
+        {
+          "t": "Remove the +40 phone and lock the account until the real Marcus is verified",
+          "g": "now",
+          "w": "Takes back the keys the help desk was tricked into handing over."
+        },
+        {
+          "t": "Block the unknown device from the build server",
+          "g": "now",
+          "w": "Stops any more of the game from leaving."
+        },
+        {
+          "t": "Tell the producers the build may have leaked",
+          "g": "later",
+          "w": "They need to know soon, but stop the attacker first, then brief them with facts."
+        },
+        {
+          "t": "Retrain the help desk on the callback policy",
+          "g": "later",
+          "w": "Important to prevent a repeat, but it doesn't stop tonight's attacker."
+        },
+        {
+          "t": "Reset every employee's password company-wide right now",
+          "g": "bad",
+          "w": "Locks out the whole studio three days before launch. The attacker is in one account; act on that one."
+        },
+        {
+          "t": "Delete the logs so the leak details don't spread",
+          "g": "bad",
+          "w": "Logs are your evidence. Deleting them helps the attacker."
+        },
+        {
+          "t": "Wait until morning to tell the security team",
+          "g": "bad",
+          "w": "Every hour you wait, the attacker keeps working."
+        }
+      ]
+    },
+    "s4": {
+      "opts": [
+        {
+          "t": "An attacker posed as Marcus on the phone, got his MFA reset, and downloaded the launch build at 12:07 AM. The attacker is cut off and his account is locked. We're confirming what else was accessed.",
+          "best": true,
+          "f": "Accurate, specific, says what's been done, and is honest about what's still unknown."
+        },
+        {
+          "t": "Marcus Vane leaked the launch build last night. We recommend involving HR.",
+          "best": false,
+          "f": "Marcus is the victim. Blaming him is wrong and teaches people to hide mistakes."
+        },
+        {
+          "t": "Hackers in Romania broke into our servers using an advanced exploit.",
+          "best": false,
+          "f": "No exploit was used; they talked their way in. And an IP location doesn't prove who's behind it."
+        },
+        {
+          "t": "There was a minor login issue overnight. No action needed.",
+          "best": false,
+          "f": "The launch build left the building. Downplaying it leaves leadership unprepared."
+        }
+      ]
+    },
+    "reveal": {
+      "company": "Electronic Arts",
+      "year": "2021",
+      "summary": "In June 2021, attackers broke into EA. News reports said they bought a stolen login cookie online, used it to get into the company's Slack, then messaged IT support pretending to be an employee who had lost their phone. Support gave them a login token, and they took source code for FIFA 21 and the Frostbite game engine.",
+      "lesson": "Verify identity through a channel you already trust, not the one the request came from.",
+      "ttps": [
+        [
+          "T1539",
+          "Steal Web Session Cookie"
+        ],
+        [
+          "T1656",
+          "Impersonation"
+        ],
+        [
+          "T1078",
+          "Valid Accounts"
+        ]
+      ]
+    }
+  },
+  {
+    "id": "launcher",
+    "file": "CASE 0666",
+    "title": "The Cursed Launcher",
+    "diff": "Medium",
+    "teaser": "Players get an email from official support with a brand-new game launcher.",
+    "s1": {
+      "role": "You are a Graveyard Games player checking your inbox.",
+      "msg": {
+        "type": "email",
+        "from": "Graveyard Games Support &lt;support@graveyardgames.com&gt;",
+        "to": "you",
+        "subject": "Action required: install the new Graveyard Launcher",
+        "attach": null,
+        "body": "Hi Player, our old launcher will stop working this weekend. To keep your account and in-game items safe, download and install the new Graveyard Launcher from the link below before Friday."
+      },
+      "flags": [
+        {
+          "t": "It sets a deadline (\"before Friday\")",
+          "r": true,
+          "w": "Deadlines push you to act before you think."
+        },
+        {
+          "t": "It asks you to install software from an email link",
+          "r": true,
+          "w": "Real game updates come through the launcher or store you already use, not an email download."
+        },
+        {
+          "t": "It says your account and items are at risk",
+          "r": true,
+          "w": "Fear of losing something valuable is a classic pressure tactic."
+        },
+        {
+          "t": "It came from the real support@graveyardgames.com address",
+          "r": false,
+          "w": "The address is real, so by itself it isn't a red flag. That's what makes this attack dangerous."
+        },
+        {
+          "t": "It greets you as \"Player\" instead of your name",
+          "r": false,
+          "w": "Mass emails often say \"Player\". Real support does it too, so it doesn't tell you much."
+        },
+        {
+          "t": "It has the studio's normal logo and formatting",
+          "r": false,
+          "w": "Looking official isn't a warning sign, and it isn't proof either."
+        }
+      ],
+      "q": "What do you do?",
+      "opts": [
+        {
+          "t": [
+            "Install it. The sender address is the studio's real support address.",
+            "Download it, since it really did come from official support."
+          ],
+          "v": "bad",
+          "pts": 0,
+          "f": "A real address only proves which system sent it. If that system is compromised, the attacker sends from it too."
+        },
+        {
+          "t": [
+            "Check the official website and social accounts for a launcher announcement.",
+            "Look for the launcher news on the studio's official site and socials first."
+          ],
+          "v": "best",
+          "pts": 3,
+          "f": "Confirming through a separate official channel catches a compromised sender. No announcement anywhere else is a big red flag."
+        },
+        {
+          "t": [
+            "Reply to support and ask whether the email is legitimate.",
+            "Hit reply and ask support to confirm the email is real."
+          ],
+          "v": "ok",
+          "pts": 1,
+          "f": "Good instinct, but the reply goes to the same compromised system, so the attacker may answer you."
+        },
+        {
+          "t": [
+            "Scan the download with antivirus, then install it if it comes back clean.",
+            "Run the file through your antivirus first and install it only if it's clean."
+          ],
+          "v": "ok",
+          "pts": 1,
+          "f": "Antivirus helps, but new or repackaged malware often isn't detected yet. A clean scan isn't a green light."
+        }
+      ]
+    },
+    "s2": {
+      "source": "Support platform · admin activity log",
+      "intro": "Thousands of players got that email. Find the entries showing how the attacker used your support system.",
+      "notes": [
+        "Vendor agents work from the Manila office and are not allowed to use personal VPNs.",
+        "Support sends templated replies to large groups of players during outages.",
+        "Official downloads only come from graveyardgames.com/download."
+      ],
+      "cols": [
+        "Time",
+        "Account",
+        "Location",
+        "Device",
+        "Event",
+        "Result"
+      ],
+      "rows": [
+        {
+          "c": [
+            "2:14 PM",
+            "agent.dana",
+            "San Antonio, TX",
+            "Office PC (known)",
+            "Sign in",
+            "Success"
+          ],
+          "s": false,
+          "w": "A support agent starting her shift."
+        },
+        {
+          "c": [
+            "2:30 PM",
+            "agent.dana",
+            "San Antonio, TX",
+            "Office PC (known)",
+            "Sent outage reply to 340 players",
+            "Success"
+          ],
+          "s": false,
+          "w": "The notes say templated outage replies are normal."
+        },
+        {
+          "c": [
+            "2:50 PM",
+            "vendor.oscar",
+            "Manila, Philippines",
+            "Vendor office PC (known)",
+            "Sign in",
+            "Success"
+          ],
+          "s": false,
+          "w": "An outsourced agent signing in from his normal office."
+        },
+        {
+          "c": [
+            "2:58 PM",
+            "vendor.oscar",
+            "Manila, Philippines",
+            "Vendor office PC (known)",
+            "Closed ticket #8790",
+            "Success"
+          ],
+          "s": false,
+          "w": "Normal support work."
+        },
+        {
+          "c": [
+            "3:02 PM",
+            "vendor.oscar",
+            "Amsterdam (VPN service)",
+            "Unknown device",
+            "Sign in",
+            "Success"
+          ],
+          "s": true,
+          "w": "Same account, another continent 12 minutes later, on a VPN vendors aren't allowed to use."
+        },
+        {
+          "c": [
+            "3:03 PM",
+            "vendor.oscar",
+            "Amsterdam (VPN service)",
+            "Unknown device",
+            "Opened admin settings: email templates",
+            "Success"
+          ],
+          "s": true,
+          "w": "Support agents answer tickets. Poking at admin settings is out of place."
+        },
+        {
+          "c": [
+            "3:05 PM",
+            "vendor.oscar",
+            "Amsterdam (VPN service)",
+            "Unknown device",
+            "Created template \"New Launcher\"",
+            "Success"
+          ],
+          "s": true,
+          "w": "There's no launcher update. The attacker is writing the bait."
+        },
+        {
+          "c": [
+            "3:07 PM",
+            "vendor.oscar",
+            "Amsterdam (VPN service)",
+            "Unknown device",
+            "Added link: files-graveyardgames.com/launcher.exe",
+            "Success"
+          ],
+          "s": true,
+          "w": "A lookalike domain. Official downloads only come from graveyardgames.com/download."
+        },
+        {
+          "c": [
+            "3:09 PM",
+            "vendor.oscar",
+            "Amsterdam (VPN service)",
+            "Unknown device",
+            "Bulk email sent to 48,000 players",
+            "Success"
+          ],
+          "s": true,
+          "w": "The trap going out to every player at once."
+        },
+        {
+          "c": [
+            "3:15 PM",
+            "agent.mia",
+            "San Antonio, TX",
+            "Office PC (known)",
+            "Sign in",
+            "Failed: password expired"
+          ],
+          "s": false,
+          "w": "Routine. Passwords expire."
+        },
+        {
+          "c": [
+            "3:16 PM",
+            "agent.mia",
+            "San Antonio, TX",
+            "Office PC (known)",
+            "Password changed",
+            "Success"
+          ],
+          "s": false,
+          "w": "Mia fixing her expired password."
+        },
+        {
+          "c": [
+            "3:30 PM",
+            "agent.dana",
+            "San Antonio, TX",
+            "Office PC (known)",
+            "Closed ticket #8812",
+            "Success"
+          ],
+          "s": false,
+          "w": "Normal support work."
+        },
+        {
+          "c": [
+            "3:40 PM",
+            "vendor.oscar",
+            "Manila, Philippines",
+            "Vendor office PC (known)",
+            "Closed ticket #8815",
+            "Success"
+          ],
+          "s": false,
+          "w": "This is the real Oscar, still working from Manila. Two places at once is your clue his login was stolen."
+        }
+      ]
+    },
+    "s3": {
+      "intro": "The fake launcher steals saved passwords from players' computers. Pick your 3 first moves.",
+      "acts": [
+        {
+          "t": "End all of vendor.oscar's sessions and reset his password",
+          "g": "now",
+          "w": "Cuts the attacker out of your support system."
+        },
+        {
+          "t": "Block the lookalike download link",
+          "g": "now",
+          "w": "Stops new victims, even if some players still click."
+        },
+        {
+          "t": "Warn players on official channels: don't run it, reset passwords, turn on MFA",
+          "g": "now",
+          "w": "Protects the people who already got the email."
+        },
+        {
+          "t": "Review which other vendor accounts can send bulk email",
+          "g": "later",
+          "w": "Smart cleanup, but first stop the active damage."
+        },
+        {
+          "t": "Offer account recovery help to affected players",
+          "g": "later",
+          "w": "Kind and useful once the bleeding has stopped."
+        },
+        {
+          "t": "Shut down the support system for good",
+          "g": "bad",
+          "w": "An overreaction. Contain the one bad account; players still need support."
+        },
+        {
+          "t": "Ask players to reply with their passwords so you can check their accounts",
+          "g": "bad",
+          "w": "Never ask for passwords. That's exactly what attackers do."
+        },
+        {
+          "t": "Email all players a link to a \"fixed\" launcher",
+          "g": "bad",
+          "w": "A second surprise download email trains players to keep clicking. Point them to the official site instead."
+        }
+      ]
+    },
+    "s4": {
+      "opts": [
+        {
+          "t": "An attacker used a vendor's stolen support login to email 48,000 players a fake launcher that steals passwords. The account is disabled and the link is blocked. We're warning players to reset passwords and turn on MFA.",
+          "best": true,
+          "f": "Clear, accurate, includes what's done and what players should do."
+        },
+        {
+          "t": "Our support vendor accidentally sent a buggy launcher update to some players.",
+          "best": false,
+          "f": "It wasn't an accident or a bug. It was malware from an attacker."
+        },
+        {
+          "t": "48,000 player accounts were hacked.",
+          "best": false,
+          "f": "48,000 received the email. We don't know how many ran it. Overstating causes panic."
+        },
+        {
+          "t": "A phishing email went out, but everything is fine now.",
+          "best": false,
+          "f": "Players who ran the file are still at risk. \"Fine\" isn't true yet."
+        }
+      ]
+    },
+    "reveal": {
+      "company": "2K Games",
+      "year": "2022",
+      "summary": "In September 2022, 2K said an unauthorized party got login details for a vendor's help desk platform and used it to email players a link. The download was malware disguised as a game launcher. Security researchers identified it as RedLine, a stealer that grabs saved passwords and browser data. 2K told players not to open the emails, to reset passwords, and to turn on MFA.",
+      "lesson": "A trusted sender can still be compromised. Confirm surprises through a separate official channel.",
+      "ttps": [
+        [
+          "T1078",
+          "Valid Accounts"
+        ],
+        [
+          "T1566.002",
+          "Spearphishing Link"
+        ],
+        [
+          "T1204.002",
+          "Malicious File"
+        ],
+        [
+          "T1555",
+          "Credentials from Password Stores"
+        ]
+      ]
+    }
+  },
+  {
+    "id": "text",
+    "file": "CASE 1013",
+    "title": "The Text from Beyond",
+    "diff": "Easy",
+    "teaser": "An employee's phone buzzes: their account will be locked in 30 minutes.",
+    "s1": {
+      "role": "You are a producer at Graveyard Games. Your phone buzzes at 9:10 AM.",
+      "msg": {
+        "type": "sms",
+        "from": "+1 (415) 555-0199",
+        "time": "9:10 AM",
+        "text": "GRAVEYARD IT: Unusual activity detected. Your account will be LOCKED in 30 minutes. Verify now: <u>graveyard-games-it.help/verify</u>"
+      },
+      "flags": [
+        {
+          "t": "It threatens to lock your account in 30 minutes",
+          "r": true,
+          "w": "A countdown is designed to make you panic and click."
+        },
+        {
+          "t": "The link isn't the company's real web address",
+          "r": true,
+          "w": "graveyard-games-it.help is a lookalike. The real IT site lives on graveyardgames.com."
+        },
+        {
+          "t": "IT is texting you a login link",
+          "r": true,
+          "w": "Real IT teams don't send login links by text."
+        },
+        {
+          "t": "It starts with \"GRAVEYARD IT\"",
+          "r": false,
+          "w": "Anyone can type a name. It's not a warning sign by itself, and it's not proof either."
+        },
+        {
+          "t": "It arrived during work hours",
+          "r": false,
+          "w": "Timing during the workday is normal and tells you nothing."
+        },
+        {
+          "t": "It came from a U.S. phone number",
+          "r": false,
+          "w": "Phone numbers are easy to spoof or buy. The country doesn't make it safe or unsafe."
+        }
+      ],
+      "q": "What do you do?",
+      "opts": [
+        {
+          "t": [
+            "Tap the link and log in quickly so your account isn't locked.",
+            "Sign in through the link right away to keep your account open."
+          ],
+          "v": "bad",
+          "pts": 0,
+          "f": "The link leads to a fake login page that captures your password and code."
+        },
+        {
+          "t": [
+            "Don't tap it. Report the text through the official IT help desk.",
+            "Leave the link alone and report the text to IT through the usual help desk."
+          ],
+          "v": "best",
+          "pts": 3,
+          "f": "You stay safe, and IT can warn everyone else who got the same text."
+        },
+        {
+          "t": [
+            "Delete the text and get on with your day.",
+            "Ignore it and delete the message."
+          ],
+          "v": "ok",
+          "pts": 1,
+          "f": "You're safe, but security never learns that others got the same text. Reporting protects your coworkers."
+        },
+        {
+          "t": [
+            "Reply and ask which activity was flagged on your account.",
+            "Text back asking what the unusual activity was."
+          ],
+          "v": "bad",
+          "pts": 0,
+          "f": "Replying tells the attacker your number is active, and they'll happily keep the conversation going."
+        }
+      ]
+    },
+    "s2": {
+      "source": "Identity provider + web proxy · combined log",
+      "intro": "A coworker named Jordan did tap the link. Find the entries that show what happened next.",
+      "notes": [
+        "The real IT site is graveyardgames.com/it-help.",
+        "m.santos works remotely from Toronto, Canada.",
+        "The company VPN exits through Frankfurt, Germany. VPN sign-ins come from known devices."
+      ],
+      "cols": [
+        "Time",
+        "User",
+        "Location",
+        "Device",
+        "Event",
+        "Result"
+      ],
+      "rows": [
+        {
+          "c": [
+            "8:40 AM",
+            "svc-backup",
+            "Data center",
+            "Backup server",
+            "Scheduled backup",
+            "Success"
+          ],
+          "s": false,
+          "w": "Routine automated job."
+        },
+        {
+          "c": [
+            "8:55 AM",
+            "j.okafor",
+            "San Antonio, TX",
+            "Windows laptop (known)",
+            "Sign in",
+            "Success"
+          ],
+          "s": false,
+          "w": "Jordan starting the workday normally."
+        },
+        {
+          "c": [
+            "9:02 AM",
+            "m.santos",
+            "Toronto, Canada",
+            "MacBook (known)",
+            "Sign in",
+            "Success"
+          ],
+          "s": false,
+          "w": "The notes say m.santos works from Toronto."
+        },
+        {
+          "c": [
+            "9:05 AM",
+            "r.patel",
+            "San Antonio, TX",
+            "Windows laptop (known)",
+            "Visited graveyardgames.com/it-help",
+            "Allowed"
+          ],
+          "s": false,
+          "w": "That's the real IT site."
+        },
+        {
+          "c": [
+            "9:12 AM",
+            "j.okafor",
+            "San Antonio, TX",
+            "iPhone (known)",
+            "Visited graveyard-games-it.help",
+            "Allowed"
+          ],
+          "s": true,
+          "w": "The lookalike domain from the text."
+        },
+        {
+          "c": [
+            "9:13 AM",
+            "j.okafor",
+            "San Antonio, TX",
+            "iPhone (known)",
+            "Approved MFA push",
+            "Success"
+          ],
+          "s": true,
+          "w": "Jordan approved a login prompt while on the fake page. The attacker was logging in at the same moment."
+        },
+        {
+          "c": [
+            "9:14 AM",
+            "j.okafor",
+            "Frankfurt, Germany (hosting provider)",
+            "Windows PC (new)",
+            "Sign in",
+            "Success"
+          ],
+          "s": true,
+          "w": "Same city as the VPN, but a hosting provider and a new device. Not the company VPN."
+        },
+        {
+          "c": [
+            "9:15 AM",
+            "j.okafor",
+            "Frankfurt, Germany (hosting provider)",
+            "Windows PC (new)",
+            "Created rule: forward all mail to an outside address",
+            "Success"
+          ],
+          "s": true,
+          "w": "A forwarding rule lets the attacker keep reading Jordan's email even after a password reset."
+        },
+        {
+          "c": [
+            "9:16 AM",
+            "j.okafor",
+            "Frankfurt, Germany (hosting provider)",
+            "Windows PC (new)",
+            "Opened \"2027 Release Calendar.xlsx\"",
+            "Success"
+          ],
+          "s": true,
+          "w": "Going straight for unannounced game plans."
+        },
+        {
+          "c": [
+            "9:20 AM",
+            "r.patel",
+            "San Antonio, TX",
+            "MacBook (known)",
+            "Sign in",
+            "Failed: wrong password"
+          ],
+          "s": false,
+          "w": "One typo..."
+        },
+        {
+          "c": [
+            "9:21 AM",
+            "r.patel",
+            "San Antonio, TX",
+            "MacBook (known)",
+            "Sign in",
+            "Success"
+          ],
+          "s": false,
+          "w": "...then a normal login."
+        },
+        {
+          "c": [
+            "9:25 AM",
+            "d.nguyen",
+            "Frankfurt (company VPN)",
+            "Windows laptop (known)",
+            "Sign in",
+            "Success"
+          ],
+          "s": false,
+          "w": "Company VPN with a known device. Same city as the attacker, but a normal login."
+        },
+        {
+          "c": [
+            "9:40 AM",
+            "j.okafor",
+            "San Antonio, TX",
+            "Windows laptop (known)",
+            "Opened Teams",
+            "Success"
+          ],
+          "s": false,
+          "w": "The real Jordan, still at work and unaware."
+        }
+      ]
+    },
+    "s3": {
+      "intro": "Jordan's password and login were captured through a fake page. Pick your 3 first moves.",
+      "acts": [
+        {
+          "t": "End Jordan's sessions and reset the password",
+          "g": "now",
+          "w": "Kicks out the attacker and makes the stolen password useless."
+        },
+        {
+          "t": "Delete the mail forwarding rule",
+          "g": "now",
+          "w": "Otherwise the attacker keeps getting Jordan's email even after the reset."
+        },
+        {
+          "t": "Block the lookalike domain for the whole company",
+          "g": "now",
+          "w": "Anyone else who taps the link hits a wall."
+        },
+        {
+          "t": "Warn all staff about the fake IT text",
+          "g": "later",
+          "w": "Important, and it comes right after you've cut off the active attacker."
+        },
+        {
+          "t": "Switch MFA to number matching so push approvals are harder to trick",
+          "g": "later",
+          "w": "A strong fix for the future, not a first move."
+        },
+        {
+          "t": "Remotely wipe Jordan's phone",
+          "g": "bad",
+          "w": "The phone wasn't infected; the password was typed into a fake site. Wiping destroys evidence."
+        },
+        {
+          "t": "Call out Jordan by name in the company chat",
+          "g": "bad",
+          "w": "Shame makes people hide mistakes. You want fast reporting."
+        },
+        {
+          "t": "Block all text messages on company phones",
+          "g": "bad",
+          "w": "Overkill that breaks real communication and doesn't remove the attacker."
+        }
+      ]
+    },
+    "s4": {
+      "opts": [
+        {
+          "t": "Jordan entered a password on a fake IT site from a text. The attacker logged in, set up email forwarding, and opened the 2027 release calendar. Access is cut off and the rule is removed. We're checking what was forwarded.",
+          "best": true,
+          "f": "Accurate, complete, and clear about what's still being checked."
+        },
+        {
+          "t": "Jordan fell for a scam and should be disciplined.",
+          "best": false,
+          "f": "Blame doesn't help leadership decide anything, and it discourages reporting."
+        },
+        {
+          "t": "Someone in Germany hacked our company VPN.",
+          "best": false,
+          "f": "The VPN wasn't involved. The attacker used Jordan's stolen password."
+        },
+        {
+          "t": "A spam text went around. No impact.",
+          "best": false,
+          "f": "The attacker read internal files and forwarded email. That's impact."
+        }
+      ]
+    },
+    "reveal": {
+      "company": "Activision",
+      "year": "2022",
+      "summary": "In December 2022, an Activision employee was tricked by a text message phishing attack. Reports said the attacker reached internal information, including content release plans. Activision said it addressed the incident quickly and that no sensitive employee data, game code, or player data was taken.",
+      "lesson": "Real IT teams don't threaten you by text with a link. Report it so everyone else is warned.",
+      "ttps": [
+        [
+          "T1660",
+          "Phishing (mobile)"
+        ],
+        [
+          "T1078",
+          "Valid Accounts"
+        ],
+        [
+          "T1114.003",
+          "Email Forwarding Rule"
+        ],
+        [
+          "T1213",
+          "Data from Information Repositories"
+        ]
+      ]
+    }
+  },
+  {
+    "id": "shield",
+    "file": "CASE 1031",
+    "title": "The Stolen Shield",
+    "diff": "Hard",
+    "teaser": "A friendly security teammate needs your code access token. Tonight.",
+    "s1": {
+      "role": "You are a developer on the anti-cheat team. A chat message pops up at 1:40 AM.",
+      "msg": {
+        "type": "chat",
+        "name": "Riley (Security Team)",
+        "tag": "External guest",
+        "channel": "Direct message",
+        "text": "Hi! Riley from security. We're rotating code repository keys tonight for the anti-cheat project. Paste your access token here so I can migrate you, or you'll lose access before the patch ships."
+      },
+      "flags": [
+        {
+          "t": "Riley is labeled \"External guest\"",
+          "r": true,
+          "w": "The real security team works for the company. Guests are outsiders."
+        },
+        {
+          "t": "It asks you to paste a secret token into chat",
+          "r": true,
+          "w": "Tokens work like passwords. No legitimate process collects them in chat."
+        },
+        {
+          "t": "It warns you'll lose access before the patch",
+          "r": true,
+          "w": "A threat plus a deadline is pressure, not process."
+        },
+        {
+          "t": "Rotating keys is a real security practice",
+          "r": false,
+          "w": "True, and that's why the story is believable. It isn't the warning sign."
+        },
+        {
+          "t": "The message is friendly and casual",
+          "r": false,
+          "w": "Plenty of real coworkers write like this."
+        },
+        {
+          "t": "It mentions the anti-cheat project by name",
+          "r": false,
+          "w": "Project names leak easily. Not a red flag, not proof."
+        }
+      ],
+      "q": "What do you do?",
+      "opts": [
+        {
+          "t": [
+            "Paste it. Key rotation is normal and Riley knows the project.",
+            "Share the token. Rotating keys is standard and the details check out."
+          ],
+          "v": "bad",
+          "pts": 0,
+          "f": "An access token is as good as your password. Anyone holding it can copy your code."
+        },
+        {
+          "t": [
+            "Don't respond. Report the message through the official security channel.",
+            "Ignore Riley and report the message to security through the normal channel."
+          ],
+          "v": "best",
+          "pts": 3,
+          "f": "The real security team is never an outside guest, and nobody legitimate asks for tokens in chat."
+        },
+        {
+          "t": [
+            "Ask Riley to confirm your manager's name and the project code first.",
+            "Test Riley by asking for your manager's name and the project code."
+          ],
+          "v": "ok",
+          "pts": 1,
+          "f": "Good instinct, but org charts are easy to find online. Verification has to happen outside this chat."
+        },
+        {
+          "t": [
+            "Create a brand-new token and share that instead of your main one.",
+            "Make a fresh token just for Riley so your main one stays private."
+          ],
+          "v": "bad",
+          "pts": 0,
+          "f": "A new token opens the same doors. You've just made one specifically for the attacker."
+        }
+      ]
+    },
+    "s2": {
+      "source": "Code repository · audit log",
+      "intro": "Another developer, Kai, fell for it. Find the entries showing the attacker at work.",
+      "notes": [
+        "Kai often works past midnight.",
+        "dev.priya works with the partner studio in Seoul, South Korea.",
+        "The build server clones about 40 repositories every night.",
+        "prod_keys.env holds passwords for live game servers."
+      ],
+      "cols": [
+        "Time",
+        "User",
+        "Location",
+        "Device",
+        "Event",
+        "Result"
+      ],
+      "rows": [
+        {
+          "c": [
+            "12:30 AM",
+            "ci-bot",
+            "Build server",
+            "Server",
+            "Scheduled build",
+            "Success"
+          ],
+          "s": false,
+          "w": "The automated build system."
+        },
+        {
+          "c": [
+            "1:12 AM",
+            "dev.sam",
+            "San Antonio, TX",
+            "Windows laptop (known)",
+            "Merged pull request",
+            "Success"
+          ],
+          "s": false,
+          "w": "Late-night work from a known person and device."
+        },
+        {
+          "c": [
+            "1:40 AM",
+            "dev.kai",
+            "San Antonio, TX",
+            "MacBook (known)",
+            "Sign in",
+            "Success"
+          ],
+          "s": false,
+          "w": "The notes say Kai often works late."
+        },
+        {
+          "c": [
+            "1:52 AM",
+            "dev.kai",
+            "San Antonio, TX",
+            "MacBook (known)",
+            "Created access token \"migration\"",
+            "Success"
+          ],
+          "s": true,
+          "w": "The subtle one: Kai made a new token right after \"Riley\" asked. This is where it started."
+        },
+        {
+          "c": [
+            "2:10 AM",
+            "dev.priya",
+            "Seoul, South Korea",
+            "MacBook (known)",
+            "Cloned repo game-ui",
+            "Success"
+          ],
+          "s": false,
+          "w": "The notes say Priya works with the Seoul studio. Known device, one repo."
+        },
+        {
+          "c": [
+            "2:30 AM",
+            "dev.ana",
+            "Austin, TX",
+            "MacBook (known)",
+            "Sign in (2 failures, then success)",
+            "Success"
+          ],
+          "s": false,
+          "w": "A couple of typos at 2:30 AM is very human."
+        },
+        {
+          "c": [
+            "2:47 AM",
+            "dev.kai",
+            "Cloud server (rented)",
+            "Script",
+            "Token \"migration\" used",
+            "Success"
+          ],
+          "s": true,
+          "w": "The new token used from a rented server, not Kai's laptop."
+        },
+        {
+          "c": [
+            "2:49 AM",
+            "dev.kai",
+            "Cloud server (rented)",
+            "Script",
+            "Cloned repo anticheat-core",
+            "Success"
+          ],
+          "s": true,
+          "w": "Going for anti-cheat code first. Cheat makers would pay for it."
+        },
+        {
+          "c": [
+            "2:53 AM",
+            "dev.kai",
+            "Cloud server (rented)",
+            "Script",
+            "Listed all repositories",
+            "Success"
+          ],
+          "s": true,
+          "w": "Mapping everything there is to take."
+        },
+        {
+          "c": [
+            "2:58 AM",
+            "dev.kai",
+            "Cloud server (rented)",
+            "Script",
+            "Cloned 214 repositories in 9 minutes",
+            "Success"
+          ],
+          "s": true,
+          "w": "Automated theft of almost everything."
+        },
+        {
+          "c": [
+            "3:05 AM",
+            "ci-bot",
+            "Build server",
+            "Server",
+            "Cloned 40 repositories for nightly build",
+            "Success"
+          ],
+          "s": false,
+          "w": "Looks like the theft, but the notes say this happens every night."
+        },
+        {
+          "c": [
+            "3:20 AM",
+            "dev.kai",
+            "Cloud server (rented)",
+            "Script",
+            "Read file prod_keys.env",
+            "Success"
+          ],
+          "s": true,
+          "w": "The attacker now has passwords for live game servers."
+        },
+        {
+          "c": [
+            "9:01 AM",
+            "dev.kai",
+            "San Antonio, TX",
+            "MacBook (known)",
+            "Sign in",
+            "Success"
+          ],
+          "s": false,
+          "w": "The real Kai arriving at work, unaware."
+        }
+      ]
+    },
+    "s3": {
+      "intro": "The attacker copied your source code and is demanding a ransom. Pick your 3 first moves.",
+      "acts": [
+        {
+          "t": "Revoke the \"migration\" token and all of Kai's tokens",
+          "g": "now",
+          "w": "Closes the door the attacker walked through."
+        },
+        {
+          "t": "Change the server passwords exposed in prod_keys.env",
+          "g": "now",
+          "w": "The attacker can use those against live servers. Rotate them immediately."
+        },
+        {
+          "t": "Bring in incident response and legal, and preserve the logs",
+          "g": "now",
+          "w": "Extortion is a crime. Experts and evidence shape every next decision."
+        },
+        {
+          "t": "Publish a statement about what was stolen",
+          "g": "later",
+          "w": "Being open builds trust, after you know the facts."
+        },
+        {
+          "t": "Block repository access from unknown cloud servers",
+          "g": "later",
+          "w": "A strong fix, but the revoked token already stops this attacker."
+        },
+        {
+          "t": "Pay the ransom so the code stays private",
+          "g": "bad",
+          "w": "Paying funds the next attack, and there's no guarantee they delete anything."
+        },
+        {
+          "t": "Delete the repositories so nothing else can be taken",
+          "g": "bad",
+          "w": "The copies are gone already. Deleting only destroys your own team's work."
+        },
+        {
+          "t": "Keep quiet and hope it never leaks",
+          "g": "bad",
+          "w": "Silence leaves players and staff unprepared."
+        }
+      ]
+    },
+    "s4": {
+      "opts": [
+        {
+          "t": "An attacker posing as a security teammate got a developer to create and share a code token. They copied 214 repositories, including anti-cheat, and read a file of live server passwords. The token is revoked, passwords are being changed, and IR and legal are engaged.",
+          "best": true,
+          "f": "Accurate, covers the biggest risk (live server passwords), and says what's being done."
+        },
+        {
+          "t": "Kai leaked our source code to a hacker.",
+          "best": false,
+          "f": "Kai was deceived. Blame helps no one and hides how the attack worked."
+        },
+        {
+          "t": "Some code was viewed, but nothing important was taken.",
+          "best": false,
+          "f": "Anti-cheat code and live server passwords are very important."
+        },
+        {
+          "t": "A nation-state hacked our cloud servers.",
+          "best": false,
+          "f": "Nothing shows who's behind it, and the attacker didn't hack servers. They used a shared token."
+        }
+      ]
+    },
+    "reveal": {
+      "company": "Riot Games",
+      "year": "2023",
+      "summary": "In January 2023, Riot Games said its development environment was compromised through a social engineering attack. The attackers took source code for League of Legends, Teamfight Tactics, and a legacy anti-cheat platform, then demanded a $10 million ransom. Riot refused to pay and publicly explained what was taken.",
+      "lesson": "Never share tokens or passwords in chat, no matter who asks. Plan for stolen code by keeping secrets out of it.",
+      "ttps": [
+        [
+          "T1656",
+          "Impersonation"
+        ],
+        [
+          "T1078",
+          "Valid Accounts"
+        ],
+        [
+          "T1213.003",
+          "Code Repositories"
+        ],
+        [
+          "T1552.001",
+          "Credentials in Files"
+        ]
+      ]
+    }
+  },
+  {
+    "id": "crypt",
+    "file": "CASE 1111",
+    "title": "The Locked Crypt",
+    "diff": "Hard",
+    "teaser": "An overdue invoice arrives from a translation vendor. It wants you to click Enable.",
+    "s1": {
+      "role": "You are a producer handling vendor payments. This lands in your inbox at 9:58 AM.",
+      "msg": {
+        "type": "email",
+        "from": "Nightshade Localization &lt;invoices@nightshade-loc.co&gt;",
+        "to": "producer@graveyardgames.com",
+        "subject": "OVERDUE: Witch Hollow DLC translation invoice",
+        "attach": "Invoice_Oct.docm",
+        "body": "Hello, your invoice is now overdue. Payment must be made by Friday or we will stop delivery. Open the attached invoice and click \"Enable Content\" to view the payment details."
+      },
+      "flags": [
+        {
+          "t": "The attachment is a .docm, a Word file that can run code",
+          "r": true,
+          "w": "The \"m\" means macros. Invoices don't need to run code."
+        },
+        {
+          "t": "It tells you to click \"Enable Content\"",
+          "r": true,
+          "w": "That button lets the hidden code run. It's the whole trap."
+        },
+        {
+          "t": "It threatens to stop delivery unless you pay by Friday",
+          "r": true,
+          "w": "Pressure plus money is a classic combo."
+        },
+        {
+          "t": "It mentions a real project, Witch Hollow DLC",
+          "r": false,
+          "w": "Project names leak through job posts and trailers. Not a red flag, and not proof."
+        },
+        {
+          "t": "It's an invoice, and the studio pays vendors all the time",
+          "r": false,
+          "w": "Invoices are normal business. That's why attackers use them."
+        },
+        {
+          "t": "It was sent to your real work email",
+          "r": false,
+          "w": "Work addresses are easy to guess. Not a warning sign by itself."
+        }
+      ],
+      "q": "What do you do?",
+      "opts": [
+        {
+          "t": [
+            "Click Enable Content. Witch Hollow is real and the vendor needs paying.",
+            "Enable the content so you can see the payment details for the real project."
+          ],
+          "v": "bad",
+          "pts": 0,
+          "f": "\"Enable Content\" runs hidden code inside the document. That's how this ransomware gets in."
+        },
+        {
+          "t": [
+            "Open it, but leave macros off and just look at the amount.",
+            "Open the invoice without enabling anything, just to check the total."
+          ],
+          "v": "ok",
+          "pts": 1,
+          "f": "Safer, but opening unexpected attachments is still risky, and you still don't know if the invoice is real."
+        },
+        {
+          "t": [
+            "Call the vendor at the number on file and report the email to security.",
+            "Check with the vendor using contact details you already have, then report the email."
+          ],
+          "v": "best",
+          "pts": 3,
+          "f": "Real vendors can confirm an invoice by phone. Security can block the sender for everyone."
+        },
+        {
+          "t": [
+            "Forward it to finance, since invoices are their job.",
+            "Pass it along to the finance team to handle."
+          ],
+          "v": "bad",
+          "pts": 0,
+          "f": "That doesn't remove the danger. It hands the trap to someone else."
+        }
+      ]
+    },
+    "s2": {
+      "source": "Endpoint protection (EDR) · events",
+      "intro": "Someone clicked Enable Content. Trace the attack across your machines.",
+      "notes": [
+        "IT runs a PowerShell inventory script from IT-PC-01 every Tuesday morning. Today is Tuesday.",
+        "The file server is copied to the backup server at 10:25 every day.",
+        "The svc-admin account should only sign in from IT-PC-01."
+      ],
+      "cols": [
+        "Time",
+        "Machine",
+        "User",
+        "Program",
+        "Event",
+        "Result"
+      ],
+      "rows": [
+        {
+          "c": [
+            "9:58 AM",
+            "PROD-PC-14",
+            "l.moreau",
+            "OUTLOOK.EXE",
+            "Received email with Invoice_Oct.docm",
+            "Allowed"
+          ],
+          "s": false,
+          "w": "Receiving an email isn't an attack step yet. Opening and enabling it is."
+        },
+        {
+          "c": [
+            "10:02 AM",
+            "PROD-PC-14",
+            "l.moreau",
+            "WINWORD.EXE",
+            "Opened Invoice_Oct.docm, macros enabled",
+            "Allowed"
+          ],
+          "s": true,
+          "w": "Where it began: macros turned on in an unexpected invoice."
+        },
+        {
+          "c": [
+            "10:03 AM",
+            "PROD-PC-14",
+            "l.moreau",
+            "WINWORD.EXE → powershell.exe",
+            "Ran hidden, scrambled command",
+            "Allowed"
+          ],
+          "s": true,
+          "w": "Word has no reason to launch PowerShell with scrambled commands."
+        },
+        {
+          "c": [
+            "10:04 AM",
+            "PROD-PC-14",
+            "l.moreau",
+            "powershell.exe",
+            "Downloaded update.exe from unknown site",
+            "Allowed"
+          ],
+          "s": true,
+          "w": "Pulling down the real malware."
+        },
+        {
+          "c": [
+            "10:05 AM",
+            "PROD-PC-09",
+            "a.diaz",
+            "chrome.exe",
+            "Visited company wiki",
+            "Allowed"
+          ],
+          "s": false,
+          "w": "Normal browsing."
+        },
+        {
+          "c": [
+            "10:08 AM",
+            "IT-PC-01",
+            "r.ortiz",
+            "powershell.exe",
+            "Ran inventory script",
+            "Allowed"
+          ],
+          "s": false,
+          "w": "PowerShell isn't evil. The notes say this script runs every Tuesday."
+        },
+        {
+          "c": [
+            "10:12 AM",
+            "PROD-PC-14",
+            "l.moreau",
+            "update.exe",
+            "Read saved passwords from Windows memory",
+            "Allowed"
+          ],
+          "s": true,
+          "w": "Stealing passwords for other accounts, including admins."
+        },
+        {
+          "c": [
+            "10:15 AM",
+            "BUILD-01",
+            "ci-bot",
+            "msbuild.exe",
+            "Nightly game build",
+            "Allowed"
+          ],
+          "s": false,
+          "w": "The build server doing its usual job."
+        },
+        {
+          "c": [
+            "10:18 AM",
+            "FILESRV-02",
+            "svc-admin",
+            "Remote login",
+            "Sign in from PROD-PC-14",
+            "Allowed"
+          ],
+          "s": true,
+          "w": "svc-admin should only come from IT-PC-01. The attacker is using a stolen admin password."
+        },
+        {
+          "c": [
+            "10:20 AM",
+            "PROD-PC-14",
+            "l.moreau",
+            "rclone.exe",
+            "Uploaded 120 GB to outside cloud storage",
+            "Allowed"
+          ],
+          "s": true,
+          "w": "Copying data out first so they can threaten to leak it."
+        },
+        {
+          "c": [
+            "10:25 AM",
+            "FILESRV-02",
+            "svc-backup",
+            "robocopy.exe",
+            "Copied 300 GB to backup server",
+            "Allowed"
+          ],
+          "s": false,
+          "w": "Big transfer, but the notes say this backup runs daily at 10:25 to an internal server."
+        },
+        {
+          "c": [
+            "10:30 AM",
+            "ART-PC-03",
+            "j.wu",
+            "Photoshop.exe",
+            "Saved file",
+            "Allowed"
+          ],
+          "s": false,
+          "w": "An artist working."
+        },
+        {
+          "c": [
+            "10:41 AM",
+            "FILESRV-02",
+            "svc-admin",
+            "update.exe",
+            "Deleted Windows backup snapshots",
+            "Allowed"
+          ],
+          "s": true,
+          "w": "Wiping the easy recovery option right before encrypting."
+        },
+        {
+          "c": [
+            "10:42 AM",
+            "FILESRV-02",
+            "svc-admin",
+            "update.exe",
+            "30,000 files renamed to .crypt",
+            "Allowed"
+          ],
+          "s": true,
+          "w": "The ransomware itself, locking the studio's files."
+        }
+      ]
+    },
+    "s3": {
+      "intro": "Files are being locked across the studio. Pick your 3 first moves.",
+      "acts": [
+        {
+          "t": "Isolate PROD-PC-14 and FILESRV-02 from the network",
+          "g": "now",
+          "w": "Stops the spread. Modern EDR tools can do this in one click."
+        },
+        {
+          "t": "Disconnect the backup server so it can't be encrypted too",
+          "g": "now",
+          "w": "Your backups are the way out without paying. Protect them first."
+        },
+        {
+          "t": "Disable l.moreau and svc-admin, and reset every admin password",
+          "g": "now",
+          "w": "Passwords were stolen from memory. Assume every admin password on that PC is known."
+        },
+        {
+          "t": "Restore files from backups",
+          "g": "later",
+          "w": "Yes, but only after the attacker is out, or they'll encrypt the restored files too."
+        },
+        {
+          "t": "Notify partners and regulators as legal advises",
+          "g": "later",
+          "w": "Required in many cases, and it comes after containment."
+        },
+        {
+          "t": "Pay the ransom immediately",
+          "g": "bad",
+          "w": "No guarantee of a working key, and the stolen copy can still be leaked."
+        },
+        {
+          "t": "Pull the power on every computer in the building",
+          "g": "bad",
+          "w": "Network isolation is more precise and keeps memory evidence investigators need."
+        },
+        {
+          "t": "Reconnect a machine to see if it spreads again",
+          "g": "bad",
+          "w": "Never test on production. You'd be helping the attack along."
+        }
+      ]
+    },
+    "s4": {
+      "opts": [
+        {
+          "t": "A fake invoice with macros infected a producer's PC. The attacker stole admin passwords, copied about 120 GB out, and encrypted the file server. Infected machines are isolated and backups are protected. We'll restore once systems are clean. The stolen data may be leaked.",
+          "best": true,
+          "f": "Accurate and complete, including the uncomfortable part: the data could leak."
+        },
+        {
+          "t": "A virus hit one computer. IT will reimage it.",
+          "best": false,
+          "f": "It spread to the file server and data was stolen. One reimage won't fix it."
+        },
+        {
+          "t": "We've been hit by ransomware and should pay to get our files back fast.",
+          "best": false,
+          "f": "Paying is a leadership and legal decision, and backups give you another way out."
+        },
+        {
+          "t": "Our backups failed and all data is lost.",
+          "best": false,
+          "f": "The backups were protected. Wrong information causes bad decisions."
+        }
+      ]
+    },
+    "reveal": {
+      "company": "CD Projekt Red",
+      "year": "2021",
+      "summary": "In February 2021, CD Projekt Red was hit by ransomware. The attackers encrypted systems and said they had stolen source code for Cyberpunk 2077, The Witcher 3, and Gwent. The studio refused to pay and restored from backups, and the stolen code was reportedly auctioned online. How the attackers first got in was not made public, so the invoice email in this case is invented.",
+      "lesson": "Fast isolation and offline backups turn a disaster into a bad week.",
+      "ttps": [
+        [
+          "T1566.001",
+          "Spearphishing Attachment"
+        ],
+        [
+          "T1059.001",
+          "PowerShell"
+        ],
+        [
+          "T1003",
+          "OS Credential Dumping"
+        ],
+        [
+          "T1567.002",
+          "Exfiltration to Cloud Storage"
+        ],
+        [
+          "T1490",
+          "Inhibit System Recovery"
+        ],
+        [
+          "T1486",
+          "Data Encrypted for Impact"
+        ]
+      ]
+    }
+  }
+]
