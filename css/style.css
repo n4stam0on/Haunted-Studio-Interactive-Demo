@@ -417,3 +417,7 @@ table.logs{border-collapse:collapse;width:100%;min-width:760px;font-family:var(-
 .mb-steps{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
 .mb-tip{background:var(--amber-wash);border-radius:10px;padding:10px 12px;font-size:15px}
 .brief-btn{align-self:flex-start;font-size:13.5px}
+.mb-card{position:relative}
+.mb-x{position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);color:var(--dim);font-size:22px;line-height:1;display:grid;place-items:center}
+.mb-x:hover{color:var(--bone);border-color:var(--dim)}
+.mb-card .eyebrow{padding-right:44px}

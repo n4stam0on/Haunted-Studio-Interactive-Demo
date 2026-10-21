@@ -428,6 +428,10 @@ table.logs{border-collapse:collapse;width:100%;min-width:760px;font-family:var(-
 .mb-steps{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
 .mb-tip{background:var(--amber-wash);border-radius:10px;padding:10px 12px;font-size:15px}
 .brief-btn{align-self:flex-start;font-size:13.5px}
+.mb-card{position:relative}
+.mb-x{position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);color:var(--dim);font-size:22px;line-height:1;display:grid;place-items:center}
+.mb-x:hover{color:var(--bone);border-color:var(--dim)}
+.mb-card .eyebrow{padding-right:44px}
 </style>
 </head>
 <body>
@@ -577,7 +581,7 @@ const STAGES=[
 /* Case data lives in data/cases.json and is loaded from js/cases.js (built by tools/build_cases.py). */
 const CASES = window.CASES;
 const RULES = window.RULES;
-const BUILD = "3.2";
+const BUILD = "3.3";
 
 const app=document.getElementById("app");
 const stepsEl=document.getElementById("steps");
@@ -1156,26 +1160,32 @@ const BRIEFS=[
 ];
 let briefKey=null;
 function closeBrief(){ const w=document.getElementById("mbrief"); if(w)w.remove(); app.inert=false; if(briefKey){document.removeEventListener("keydown",briefKey);briefKey=null;} }
-function openBrief(n,after){
+function openBrief(n,after,entry){
   closeBrief();
   const b=BRIEFS[n], who=MODE==="team"&&TEAM?TEAM.players[n%TEAM.players.length]:null;
   const w=document.createElement("div"); w.id="mbrief"; w.className="mb-wrap";
+  const backLabel=n===0?"Choose a different case":"Quit to case files";
   w.innerHTML=`<div class="mb-card" role="dialog" aria-modal="true" aria-labelledby="mb-title">
+    <button class="mb-x" id="mb-x" aria-label="${entry&&n===0?backLabel:"Close"}">×</button>
     <span class="eyebrow">Read me before proceeding · Station ${n+1} of 5</span>
     <h2 id="mb-title">${b.t}</h2>
     <p class="mb-goal"><b>Your goal:</b> ${b.goal}</p>
     ${who?`<p class="mb-who">On point: <b>${esc(who)}</b> · ${ROLES[n].r}</p>`:""}
     <ol class="mb-steps">${b.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
     <p class="mb-tip">${b.tip}</p>
-    <div class="btn-row"><button class="btn" id="mb-go">Got it, start Station ${n+1}</button></div>
+    <div class="btn-row"><button class="btn" id="mb-go">${entry?`Got it, start Station ${n+1}`:`Back to Station ${n+1}`}</button>${entry?`<button class="btn btn-ghost" id="mb-back">${backLabel}</button>`:""}</div>
   </div>`;
   document.body.appendChild(w); app.inert=true;
   const go=()=>{ closeBrief(); if(after)after(); };
+  const back=()=>{ stopLive(); closeBrief(); home(); toTop(); };
+  const xAct=entry&&n===0?back:go;
   w.querySelector("#mb-go").addEventListener("click",go);
-  briefKey=e=>{ if(e.key==="Escape"){e.preventDefault();go();} }; document.addEventListener("keydown",briefKey);
+  w.querySelector("#mb-x").addEventListener("click",xAct);
+  w.querySelector("#mb-back")?.addEventListener("click",back);
+  briefKey=e=>{ if(e.key==="Escape"){e.preventDefault();xAct();} }; document.addEventListener("keydown",briefKey);
   setTimeout(()=>w.querySelector("#mb-go")?.focus(),30);
 }
-function needBrief(n,after){ if(S.briefed[n]){ if(after)after(); return; } S.briefed[n]=true; openBrief(n,after); }
+function needBrief(n,after){ if(S.briefed[n]){ if(after)after(); return; } S.briefed[n]=true; openBrief(n,after,true); }
 const briefBtn=n=>`<button class="linkish brief-btn" data-a="rebrief" data-i="${n}">Mission briefing</button>`;
 
 function station3(){ station3_(); animateMap(); needBrief(2); }
