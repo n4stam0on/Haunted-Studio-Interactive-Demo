@@ -64,6 +64,20 @@ def validate(cases, rules, docs):
         for d in c.get("console", {}).get("docs", []):
             if d not in docs:
                 problems.append(f"{name}: unknown runbook '{d}'")
+        node_ids = {n["id"] for n in c["s3"].get("map", {}).get("nodes", [])}
+        for k, e in enumerate(c["s3"].get("feed", [])):
+            path = e.get("path", [])
+            if not path or not set(path) <= node_ids:
+                problems.append(f"{name}: attack map path for event {k} uses unknown nodes")
+                continue
+            path_edges = {frozenset(p) for p in zip(path, path[1:])}
+            for i, a in enumerate(c["s3"]["acts"]):
+                fx = a.get("fx")
+                if not fx:
+                    continue
+                touches = bool({frozenset(x) for x in fx.get("cut", [])} & path_edges) or bool(set(fx.get("guard", {})) & set(path))
+                if touches != (i in e["by"]):
+                    problems.append(f"{name}: map for event {k} doesn't match what action {i} blocks")
         if len(c.get("timeline", [])) < 3:
             problems.append(f"{name}: timeline needs at least three steps")
         if sum(o["best"] for o in c["s4"]["opts"]) != 1:

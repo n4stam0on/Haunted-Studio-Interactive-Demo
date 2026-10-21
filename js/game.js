@@ -11,7 +11,7 @@ const STAGES=[
 /* Case data lives in data/cases.json and is loaded from js/cases.js (built by tools/build_cases.py). */
 const CASES = window.CASES;
 const RULES = window.RULES;
-const BUILD = "3.1";
+const BUILD = "3.2";
 
 const app=document.getElementById("app");
 const stepsEl=document.getElementById("steps");
@@ -71,6 +71,7 @@ function setSteps(i){
 function toTop(){window.scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})}
 
 function home(){
+  if(typeof closeBrief==="function")closeBrief();
   S=null; setSteps(-1);
   app.innerHTML=`
   <section class="hero">
@@ -115,6 +116,7 @@ function home(){
 }
 
 function start(id){
+  closeBrief();
   lastId=id;
   const c=CASES.find(x=>x.id===id);
   S={c, words:{},
@@ -122,7 +124,7 @@ function start(id){
      s1:null, o1:shuf(c.s1.opts.length),
      flagged:new Set(), s2done:false,
      ev:[], evNew:null, card:null, q:"",
-     live:{started:false, done:false, used:[], wasted:0, doneKeys:[], log:[], next:0, tm:null}, o3:shuf(c.s3.acts.length),
+     live:{started:false, done:false, used:[], wasted:0, doneKeys:[], log:[], next:0, tm:null, anim:0}, briefed:{}, o3:shuf(c.s3.acts.length),
      con:{tool:c.console.tools[0], user:null},
      tl:{pool:shuf(c.timeline.length), placed:[], stages:{}, done:false},
      s4:null, o4:shuf(c.s4.opts.length),
@@ -243,16 +245,17 @@ function station1(){
     ${S.ev.length?`<ul class="findings">${S.ev.map(i=>`<li class="${i===nNew?"risein":""}"><span class="verdict">${ev[i].tool?ev[i].tool+" · ":""}${ev[i].t}</span><span>${ev[i].f}</span></li>`).join("")}</ul>`:""}
   </div>`;
   app.innerHTML=`
-  <div class="station-head"><span class="eyebrow">${c.file} · ${c.title} · Station 1</span><h2>The first contact</h2><p class="muted">${s.role}</p></div>
+  <div class="station-head"><span class="eyebrow">${c.file} · ${c.title} · Station 1</span><h2>The first contact</h2><p class="muted">${s.role}</p>${briefBtn(0)}</div>
   ${onPoint(0)}
   <div class="two">
     <div class="stack">${msgHTML(s.msg,anim)}${evid}</div>
     <div class="stack" id="s1right">${right}</div>
   </div>`;
-  if(anim)playIntro();
+  if(anim) needBrief(0, playIntro); else needBrief(0);
 }
 
-function station2(){
+function station2(){ station2_(); needBrief(1); }
+function station2_(){
   setSteps(1);
   const c=S.c, s=c.s2, done=S.s2done;
   const bot = done ? botResult(c) : {flagged:new Set()};
@@ -283,7 +286,7 @@ function station2(){
     }
   }
   app.innerHTML=`
-  <div class="station-head"><span class="eyebrow">${c.file} · Station 2</span><h2>Log Hunt</h2><p class="muted">${intro} Use the analyst notes, tap every suspicious row, then submit.${hint}</p></div>
+  <div class="station-head"><span class="eyebrow">${c.file} · Station 2</span><h2>Log Hunt</h2><p class="muted">${intro} Use the analyst notes, tap every suspicious row, then submit.${hint}</p>${briefBtn(1)}</div>
   ${onPoint(1)}
   <div class="notes"><span class="msg-meta">Analyst notes</span><ul>${s.notes.map(n=>`<li>${n}</li>`).join("")}</ul></div>
   <div class="panel">
@@ -447,7 +450,170 @@ function paneHTML(){
   if(t==="docs") return `<p class="muted">Runbooks. Reading is free.</p>${con.docs.map(d=>DOCS[d]).filter(Boolean).map(d=>`<div class="doc"><b>${d.title}</b><ol>${d.steps.map(s=>`<li>${s}</li>`).join("")}</ol></div>`).join("")}`;
   return "";
 }
-function station3(){
+/* ---------- Station 3 attack map ---------- */
+const KIND_ICON={
+  atk:'<path d="M5 21V10a7 7 0 0 1 14 0v11l-2.3-1.6L14.3 21 12 19.4 9.7 21l-2.4-1.6z"/><circle cx="9.5" cy="10.5" r="1" fill="currentColor"/><circle cx="14.5" cy="10.5" r="1" fill="currentColor"/>',
+  soc:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+  account:'<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/>',
+  device:'<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
+  server:'<rect x="3" y="3" width="18" height="7" rx="1.5"/><rect x="3" y="14" width="18" height="7" rx="1.5"/><path d="M7 6.5h.01M7 17.5h.01"/>',
+  data:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>',
+  people:'<circle cx="9" cy="8" r="3.5"/><path d="M2 21v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 15a5 5 0 0 1 4 5v1"/>'
+};
+const ekey=(a,b)=>[a,b].sort().join("~");
+function mapState(log){
+  const s=S.c.s3, guard={}, cut={}, hit={}, hot={};
+  for(const x of log){
+    if(x.kind==="you"&&x.act>=0&&!x.dup){
+      const fx=s.acts[x.act].fx; if(!fx)continue;
+      (fx.cut||[]).forEach(([a,b])=>cut[ekey(a,b)]=true);
+      Object.entries(fx.guard||{}).forEach(([n,t])=>guard[n]=t);
+    }
+    if(x.kind==="atk"&&x.ok){
+      const p=s.feed[x.i].path; hit[p[p.length-1]]=true;
+      for(let k=0;k<p.length-1;k++)hot[ekey(p[k],p[k+1])]=true;
+    }
+  }
+  return {guard,cut,hit,hot};
+}
+function mapEdges(){
+  const s=S.c.s3, set={};
+  s.feed.forEach(e=>{for(let k=0;k<e.path.length-1;k++)set[ekey(e.path[k],e.path[k+1])]=[e.path[k],e.path[k+1]];});
+  return Object.values(set);
+}
+function mapSVG(st){
+  const nodes=S.c.s3.map.nodes, N={}; nodes.forEach(n=>N[n.id]=n);
+  const lines=mapEdges().map(([a,b])=>{
+    const A=N[a],B=N[b],k=ekey(a,b),mx=(A.x+B.x)/2,my=(A.y+B.y)/2;
+    const cls=st.cut[k]?"e cut":st.hot[k]?"e hot":"e";
+    const x=st.cut[k]?`<g class="xmark"><circle cx="${mx}" cy="${my}" r="8"/><path d="M${mx-3.5} ${my-3.5}l7 7M${mx+3.5} ${my-3.5}l-7 7"/></g>`:"";
+    return `<line class="${cls}" x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}"/>${x}`;
+  }).join("");
+  const dots=nodes.map(n=>{
+    const g=st.guard[n.id], h=st.hit[n.id];
+    const cls=`n k-${n.k}${g?" guard":h?" hit":""}`;
+    const tag=g?`<g class="tag ok"><rect x="${n.x-27}" y="${n.y-35}" width="54" height="14" rx="7"/><text x="${n.x}" y="${n.y-25}">${g.toUpperCase()}</text></g>`
+      : h&&n.k!=="atk"?`<g class="tag bad"><rect x="${n.x-24}" y="${n.y-35}" width="48" height="14" rx="7"/><text x="${n.x}" y="${n.y-25}">HIT</text></g>`:"";
+    return `<g class="${cls}" data-n="${n.id}"><circle cx="${n.x}" cy="${n.y}" r="17"/>${g?`<circle class="ring" cx="${n.x}" cy="${n.y}" r="22"/>`:""}
+      <g transform="translate(${n.x-9} ${n.y-9}) scale(.75)" class="ico">${KIND_ICON[n.k]}</g>
+      <text class="lbl" x="${n.x}" y="${n.y+31}">${esc(n.l)}</text>${tag}</g>`;
+  }).join("");
+  return `<svg viewBox="0 -4 400 276" class="amap" role="img" aria-label="Attack map">${lines}${dots}<g class="fxlayer"></g></svg>`;
+}
+function mapCaption(x){
+  const s=S.c.s3;
+  if(!x)return S.live.started?"Watching for the attacker's next move…":"The map shows where the attacker is and what they can reach.";
+  if(x.kind==="atk"){const e=s.feed[x.i];return `<b class="${x.ok?"c-bad":"c-ok"}">${x.ok?"Attacker":"Blocked"}:</b> ${e.t}`;}
+  if(x.dup)return `<b class="c-dim">You:</b> already covered by an earlier action.`;
+  if(x.act<0)return `<b class="c-dim">You:</b> no effect on the attacker.`;
+  const a=s.acts[x.act];
+  return a.fx?`<b class="c-ok">You:</b> ${a.fx.say}`:`<b class="c-warn">You:</b> ${a.g==="later"?"useful later, but the attacker keeps going.":"this doesn't stop the attacker."}`;
+}
+function mapPanel(){
+  const L=S.live, n=L.log.length, animate=n>L.anim&&!matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const st=mapState(animate?L.log.slice(0,-1):L.log);
+  return `<div class="mapbox" id="mapbox">${mapSVG(st)}<p class="mapcap" id="mapcap">${mapCaption(animate?null:L.log[n-1])}</p>
+    <div class="legend"><span><i class="lg bad"></i>Attacker path</span><span><i class="lg ok"></i>Your defenses</span><span><i class="lg hit"></i>Reached</span></div></div>`;
+}
+function animateMap(){
+  const L=S.live, n=L.log.length; if(n<=L.anim)return;
+  L.anim=n;
+  const box=document.getElementById("mapbox"); if(!box)return;
+  const x=L.log[n-1], s=S.c.s3, N={}; s.map.nodes.forEach(m=>N[m.id]=m);
+  const svg=box.querySelector("svg"), layer=svg.querySelector(".fxlayer");
+  const finish=()=>{ const b=document.getElementById("mapbox"); if(!b)return;
+    b.querySelector("svg").outerHTML=mapSVG(mapState(L.log));
+    document.getElementById("mapcap").innerHTML=mapCaption(x);
+    const nb=document.getElementById("mapbox").querySelector("svg");
+    if(x.kind==="you"&&x.act>=0&&!x.dup&&s.acts[x.act].fx){Object.keys(s.acts[x.act].fx.guard||{}).forEach(id=>nb.querySelector(`[data-n="${id}"]`)?.classList.add("flash-ok"));}
+    if(x.kind==="atk"&&x.ok){const p=s.feed[x.i].path;nb.querySelector(`[data-n="${p[p.length-1]}"]`)?.classList.add("flash-bad");}
+  };
+  let pts, color, stopBurst=null;
+  if(x.kind==="atk"){
+    const p=s.feed[x.i].path, pre=mapState(L.log.slice(0,-1));
+    pts=[[N[p[0]].x,N[p[0]].y]]; color="var(--blood)";
+    if(pre.guard[p[0]]){stopBurst=pts[0];}
+    else for(let k=0;k<p.length-1;k++){
+      const A=N[p[k]],B=N[p[k+1]];
+      if(pre.cut[ekey(p[k],p[k+1])]){const m=[(A.x+B.x)/2,(A.y+B.y)/2];pts.push(m);stopBurst=m;break;}
+      if(pre.guard[p[k+1]]){const m=[A.x+(B.x-A.x)*.72,A.y+(B.y-A.y)*.72];pts.push(m);stopBurst=m;break;}
+      pts.push([B.x,B.y]);
+    }
+  } else {
+    const soc=N.soc; pts=[[soc.x,soc.y]]; color=x.act>=0&&s.acts[x.act].fx&&!x.dup?"var(--ecto)":"var(--dim)";
+    const fx=x.act>=0&&!x.dup?s.acts[x.act].fx:null;
+    if(fx){ const tg=Object.keys(fx.guard||{})[0]; const ct=(fx.cut||[])[0];
+      if(tg)pts.push([N[tg].x,N[tg].y]); else if(ct)pts.push([(N[ct[0]].x+N[ct[1]].x)/2,(N[ct[0]].y+N[ct[1]].y)/2]); }
+    else pts.push([soc.x+(soc.x>200?-38:38),soc.y-34]);
+  }
+  const NS="http://www.w3.org/2000/svg", dot=document.createElementNS(NS,"circle");
+  dot.setAttribute("r","6"); dot.setAttribute("fill",color); dot.setAttribute("class","pulse"); layer.appendChild(dot);
+  const segs=[]; let total=0;
+  for(let k=0;k<pts.length-1;k++){const d=Math.hypot(pts[k+1][0]-pts[k][0],pts[k+1][1]-pts[k][1]);segs.push(d);total+=d;}
+  const dur=Math.max(550,Math.min(1300,total*4.5)), t0=performance.now();
+  const step=now=>{
+    if(!dot.isConnected)return;
+    let t=Math.min(1,(now-t0)/dur), d=t*total, k=0;
+    while(k<segs.length-1&&d>segs[k]){d-=segs[k];k++;}
+    const f=segs[k]?d/segs[k]:1, a=pts[k], b=pts[k+1]||pts[k];
+    dot.setAttribute("cx",a[0]+(b[0]-a[0])*f); dot.setAttribute("cy",a[1]+(b[1]-a[1])*f);
+    if(t<1)return requestAnimationFrame(step);
+    if(stopBurst){
+      const r=document.createElementNS(NS,"circle"); r.setAttribute("cx",stopBurst[0]); r.setAttribute("cy",stopBurst[1]); r.setAttribute("r","6"); r.setAttribute("class","burst"); layer.appendChild(r);
+      const tx=document.createElementNS(NS,"text"); tx.setAttribute("x",stopBurst[0]); tx.setAttribute("y",stopBurst[1]-14); tx.setAttribute("class","burst-t"); tx.textContent="BLOCKED"; layer.appendChild(tx);
+      dot.remove(); setTimeout(finish,650);
+    } else if(x.kind==="you"&&color==="var(--dim)"){
+      const tx=document.createElementNS(NS,"text"); tx.setAttribute("x",b[0]); tx.setAttribute("y",b[1]-10); tx.setAttribute("class","noeffect"); tx.textContent="No effect"; layer.appendChild(tx);
+      dot.remove(); setTimeout(finish,600);
+    } else { dot.remove(); finish(); }
+  };
+  requestAnimationFrame(step);
+}
+
+/* ---------- Mission briefings ---------- */
+const BRIEFS=[
+  {t:"The first contact", goal:"Decide whether this request is real before anyone gets hurt.",
+   steps:["Read the message as it comes in.","Use the Investigate buttons to check the facts. Checking is free.","Select every red flag. Normal details cost points.","Choose how to respond."],
+   tip:"Attackers rely on urgency. Slow down and verify."},
+  {t:"Log Hunt", goal:"Find every log entry that shows the attacker at work.",
+   steps:["Read the analyst notes. They explain what's normal here.","Tap a name to open their profile, or a location to look it up. Use search to filter.","Tap each suspicious row to flag it, then submit.","Compare your results with the detection script."],
+   tip:"Some rows look scary but are normal. False alarms cost points."},
+  {t:"Contain the attack", goal:"Cut the attacker off before they finish the job.",
+   steps:["Explore the IT console first. Browsing and reading runbooks are free, and nothing moves until you press Go live.","Press Go live. The attacker acts every few seconds, and the map shows each move.","Use 3 admin actions to stop them. Each one appears on the map right away.","Watch red attacker moves stop at your green defenses."],
+   tip:"Cut off access first. Cleanup and announcements come later. Acting on the wrong account or machine wastes a move."},
+  {t:"Rebuild the timeline", goal:"Put the attack back together, step by step.",
+   steps:["Tap the evidence cards in the order they happened.","Pick the Cyber Kill Chain stage for each step.","Check your timeline."],
+   tip:"Not sure about a stage? Open \"What do the stages mean?\"."},
+  {t:"The brief", goal:"Tell the studio head what happened in one message.",
+   steps:["Read all four summaries.","Pick the one you'd actually send."],
+   tip:"Accurate beats dramatic. Say what's done and what's still unknown, and don't blame the victim."}
+];
+let briefKey=null;
+function closeBrief(){ const w=document.getElementById("mbrief"); if(w)w.remove(); app.inert=false; if(briefKey){document.removeEventListener("keydown",briefKey);briefKey=null;} }
+function openBrief(n,after){
+  closeBrief();
+  const b=BRIEFS[n], who=MODE==="team"&&TEAM?TEAM.players[n%TEAM.players.length]:null;
+  const w=document.createElement("div"); w.id="mbrief"; w.className="mb-wrap";
+  w.innerHTML=`<div class="mb-card" role="dialog" aria-modal="true" aria-labelledby="mb-title">
+    <span class="eyebrow">Read me before proceeding · Station ${n+1} of 5</span>
+    <h2 id="mb-title">${b.t}</h2>
+    <p class="mb-goal"><b>Your goal:</b> ${b.goal}</p>
+    ${who?`<p class="mb-who">On point: <b>${esc(who)}</b> · ${ROLES[n].r}</p>`:""}
+    <ol class="mb-steps">${b.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
+    <p class="mb-tip">${b.tip}</p>
+    <div class="btn-row"><button class="btn" id="mb-go">Got it, start Station ${n+1}</button></div>
+  </div>`;
+  document.body.appendChild(w); app.inert=true;
+  const go=()=>{ closeBrief(); if(after)after(); };
+  w.querySelector("#mb-go").addEventListener("click",go);
+  briefKey=e=>{ if(e.key==="Escape"){e.preventDefault();go();} }; document.addEventListener("keydown",briefKey);
+  setTimeout(()=>w.querySelector("#mb-go")?.focus(),30);
+}
+function needBrief(n,after){ if(S.briefed[n]){ if(after)after(); return; } S.briefed[n]=true; openBrief(n,after); }
+const briefBtn=n=>`<button class="linkish brief-btn" data-a="rebrief" data-i="${n}">Mission briefing</button>`;
+
+function station3(){ station3_(); animateMap(); needBrief(2); }
+function station3_(){
   setSteps(2);
   const c=S.c, s=c.s3, L=S.live, feed=s.feed, st=liveStats(), con=c.console;
   const lab={now:["Good call","var(--ecto)"],later:["Right idea, wrong time","var(--amber)"],bad:["Makes it worse","var(--blood)"]};
@@ -465,7 +631,7 @@ function station3(){
     : `<p class="picked-n">${left>0?`${left} move${left===1?"":"s"} left`:"All 3 moves used. Watching what happens next…"}</p>`;
   const answers=L.done?`<div class="panel"><span class="msg-meta">The 3 actions that stop this attack</span><ol class="plain-ol">${s.acts.filter(a=>a.g==="now").map(a=>`<li><b>${a.do[0]==="desk"?TOOLS.desk.n+" → "+a.t:keyLabel(a.do[0])}</b><span class="why2">${a.w}</span></li>`).join("")}</ol></div>`:"";
   app.innerHTML=`
-  <div class="station-head"><span class="eyebrow">${c.file} · Station 3</span><h2>Contain the attack</h2><p class="muted">Use the IT console to cut the attacker off. Pick the right tool, the right target, and the right action. Acting on the wrong account or machine wastes a move.</p></div>
+  <div class="station-head"><span class="eyebrow">${c.file} · Station 3</span><h2>Contain the attack</h2><p class="muted">Use the IT console to cut the attacker off. Pick the right tool, the right target, and the right action. Acting on the wrong account or machine wastes a move.</p>${briefBtn(2)}</div>
   ${onPoint(2)}
   <div class="live-grid">
     <div class="console">
@@ -473,7 +639,8 @@ function station3(){
       <div class="cpane"><div class="cpane-head">${icon(S.con.tool)}<b>${TOOLS[S.con.tool].n}</b>${!L.started?`<span class="picked-n">Go live to take actions</span>`:""}</div>${paneHTML()}</div>
     </div>
     <div class="panel feed">
-      <div class="feed-head"><span class="msg-meta">${L.started&&!L.done?'<span class="live">Live</span> · ':""}Attacker activity</span><span class="picked-n">${st.landed} got through</span></div>
+      <div class="feed-head"><span class="msg-meta">${L.started&&!L.done?'<span class="live">Live</span> · ':""}Attack map</span><span class="picked-n">${st.landed} got through</span></div>
+      ${mapPanel()}
       <div class="meter" role="img" aria-label="Damage ${pct} percent"><i style="width:${pct}%"></i></div>
       ${status}
       <ul class="feedlist">${lines}</ul>
@@ -483,7 +650,8 @@ function station3(){
   ${L.done?`<div class="btn-row"><button class="btn" data-a="toT">Go to Station 4: Timeline</button></div>`:""}`;
 }
 
-function stationT(){
+function stationT(){ stationT_(); needBrief(3); }
+function stationT_(){
   setSteps(3);
   const c=S.c, T=S.tl, steps=c.timeline;
   const opts=sel=>`<option value="">Choose a stage…</option>`+STAGES.map((g,k)=>`<option value="${k}" ${String(sel)===String(k)?"selected":""}>${k+1}. ${g.k} (${g.p.toLowerCase()})</option>`).join("");
@@ -501,7 +669,7 @@ function stationT(){
   const ready=T.placed.length===steps.length&&steps.every((_,i)=>T.stages[i]!==undefined&&T.stages[i]!=="");
   if(T.done){S.tlScore={pos,stg};}
   app.innerHTML=`
-  <div class="station-head"><span class="eyebrow">${c.file} · Station 4</span><h2>Rebuild the timeline</h2><p class="muted">Incident reports start with a timeline. Tap the attacker's steps in the order they happened, then tag each one with its Cyber Kill Chain stage.</p></div>
+  <div class="station-head"><span class="eyebrow">${c.file} · Station 4</span><h2>Rebuild the timeline</h2><p class="muted">Incident reports start with a timeline. Tap the attacker's steps in the order they happened, then tag each one with its Cyber Kill Chain stage.</p>${briefBtn(3)}</div>
   ${onPoint(3)}
   <div class="two">
     <div class="panel"><span class="msg-meta">Evidence cards${pool.length?` · ${pool.length} left`:""}</span>
@@ -517,7 +685,8 @@ function stationT(){
   </div>`;
 }
 
-function station4(){
+function station4(){ station4_(); needBrief(4); }
+function station4_(){
   setSteps(4);
   const c=S.c, b=c.s4, ans=S.s4;
   let after="";
@@ -528,7 +697,7 @@ function station4(){
       <div class="btn-row"><button class="btn" data-a="toR">Reveal the real case</button></div>`;
   }
   app.innerHTML=`
-  <div class="station-head"><span class="eyebrow">${c.file} · Station 5</span><h2>The Brief</h2><p class="muted">The studio head has two minutes before a call with the publisher. Which summary do you send? Accurate beats dramatic.</p></div>
+  <div class="station-head"><span class="eyebrow">${c.file} · Station 5</span><h2>The Brief</h2><p class="muted">The studio head has two minutes before a call with the publisher. Which summary do you send? Accurate beats dramatic.</p>${briefBtn(4)}</div>
   ${onPoint(4)}
   <div class="panel">
     ${choicesHTML(b.opts,S.o4,ans,"s4","s4-",o=>o.best,o=>o.best?"v-best":"v-bad")}
@@ -604,6 +773,7 @@ app.addEventListener("click",e=>{
   else if(a==="to3"){station3();toTop();}
   else if(a==="golive"&&!S.live.started){S.live.started=true;station3();const sess=S;S.live.tm=setTimeout(()=>liveTick(sess),1500);}
   else if(a==="cact"){conAction(el.dataset.k);}
+  else if(a==="rebrief"){openBrief(i);}
   else if(a==="ctool"){S.con.tool=el.dataset.k;station3();}
   else if(a==="cuser"){S.con.user=el.dataset.k;station3();}
   else if(a==="toT"){stopLive();stationT();toTop();}

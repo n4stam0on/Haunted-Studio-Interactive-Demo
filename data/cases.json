@@ -357,7 +357,16 @@
           "w": "Kicks the attacker out of every place they're logged in right now.",
           "do": [
             "directory|m.vane|revoke"
-          ]
+          ],
+          "fx": {
+            "cut": [
+              [
+                "atk",
+                "acct"
+              ]
+            ],
+            "say": "Sessions revoked. The attacker's sign-in is cut."
+          }
         },
         {
           "t": "Remove the +40 phone and lock the account until the real Marcus is verified",
@@ -366,7 +375,19 @@
           "do": [
             "directory|m.vane|removemfa",
             "directory|m.vane|disable"
-          ]
+          ],
+          "fx": {
+            "cut": [
+              [
+                "phone",
+                "acct"
+              ]
+            ],
+            "guard": {
+              "acct": "Locked"
+            },
+            "say": "+40 phone removed and the account is locked."
+          }
         },
         {
           "t": "Block the unknown device from the build server",
@@ -374,7 +395,16 @@
           "w": "Stops any more of the game from leaving.",
           "do": [
             "network|Bucharest, Romania|block"
-          ]
+          ],
+          "fx": {
+            "cut": [
+              [
+                "acct",
+                "build"
+              ]
+            ],
+            "say": "The build server is blocked to the attacker."
+          }
         },
         {
           "t": "Tell the producers the build may have leaked",
@@ -423,6 +453,11 @@
           "by": [
             0,
             1
+          ],
+          "path": [
+            "atk",
+            "acct",
+            "chat"
           ]
         },
         {
@@ -430,12 +465,23 @@
           "by": [
             2,
             1
+          ],
+          "path": [
+            "atk",
+            "phone",
+            "acct",
+            "build"
           ]
         },
         {
           "t": "Signs back in using the +40 phone",
           "by": [
             1
+          ],
+          "path": [
+            "atk",
+            "phone",
+            "acct"
           ]
         },
         {
@@ -443,12 +489,22 @@
           "by": [
             0,
             1
+          ],
+          "path": [
+            "atk",
+            "acct",
+            "press"
           ]
         },
         {
           "t": "Adds a second MFA device for backup access",
           "by": [
             1
+          ],
+          "path": [
+            "atk",
+            "phone",
+            "acct"
           ]
         },
         {
@@ -456,9 +512,68 @@
           "by": [
             2,
             1
+          ],
+          "path": [
+            "atk",
+            "phone",
+            "acct",
+            "build"
           ]
         }
-      ]
+      ],
+      "map": {
+        "nodes": [
+          {
+            "id": "atk",
+            "l": "Attacker",
+            "k": "atk",
+            "x": 48,
+            "y": 62
+          },
+          {
+            "id": "phone",
+            "l": "+40 phone",
+            "k": "device",
+            "x": 48,
+            "y": 178
+          },
+          {
+            "id": "acct",
+            "l": "m.vane",
+            "k": "account",
+            "x": 170,
+            "y": 120
+          },
+          {
+            "id": "chat",
+            "l": "#engine-builds",
+            "k": "data",
+            "x": 300,
+            "y": 40
+          },
+          {
+            "id": "press",
+            "l": "Press kit",
+            "k": "data",
+            "x": 345,
+            "y": 120
+          },
+          {
+            "id": "build",
+            "l": "Build server",
+            "k": "server",
+            "x": 300,
+            "y": 200
+          },
+          {
+            "id": "soc",
+            "l": "You (SOC)",
+            "k": "soc",
+            "x": 170,
+            "y": 225
+          }
+        ]
+      }
     },
     "s4": {
       "opts": [
@@ -910,7 +1025,19 @@
             "directory|vendor.oscar|revoke",
             "directory|vendor.oscar|reset",
             "directory|vendor.oscar|disable"
-          ]
+          ],
+          "fx": {
+            "cut": [
+              [
+                "atk",
+                "vacct"
+              ]
+            ],
+            "guard": {
+              "vacct": "Disabled"
+            },
+            "say": "vendor.oscar is cut off and disabled."
+          }
         },
         {
           "t": "Block the lookalike download link",
@@ -918,7 +1045,13 @@
           "w": "Stops new victims, even if some players still click.",
           "do": [
             "network|files-graveyardgames.com|block"
-          ]
+          ],
+          "fx": {
+            "guard": {
+              "link": "Blocked"
+            },
+            "say": "The fake download link is blocked."
+          }
         },
         {
           "t": "Warn players on official channels: don't run it, reset passwords, turn on MFA",
@@ -926,7 +1059,16 @@
           "w": "Protects the people who already got the email.",
           "do": [
             "desk"
-          ]
+          ],
+          "fx": {
+            "cut": [
+              [
+                "players",
+                "creds"
+              ]
+            ],
+            "say": "Players are warned to reset passwords, so stolen ones stop working."
+          }
         },
         {
           "t": "Review which other vendor accounts can send bulk email",
@@ -974,24 +1116,44 @@
           "t": "Sends a second wave of the email to 12,000 more players",
           "by": [
             0
+          ],
+          "path": [
+            "atk",
+            "vacct",
+            "supp"
           ]
         },
         {
           "t": "400 more players download launcher.exe",
           "by": [
             1
+          ],
+          "path": [
+            "atk",
+            "link",
+            "players"
           ]
         },
         {
           "t": "Stolen passwords start arriving at the attacker's server",
           "by": [
             2
+          ],
+          "path": [
+            "players",
+            "creds",
+            "atk"
           ]
         },
         {
           "t": "Posts the fake launcher in the official forum as Support",
           "by": [
             0
+          ],
+          "path": [
+            "atk",
+            "vacct",
+            "forum"
           ]
         },
         {
@@ -999,15 +1161,86 @@
           "by": [
             1,
             2
+          ],
+          "path": [
+            "atk",
+            "link",
+            "players",
+            "creds"
           ]
         },
         {
           "t": "Logs into 300 player accounts and sells their rare items",
           "by": [
             2
+          ],
+          "path": [
+            "atk",
+            "creds",
+            "players"
           ]
         }
-      ]
+      ],
+      "map": {
+        "nodes": [
+          {
+            "id": "atk",
+            "l": "Attacker",
+            "k": "atk",
+            "x": 48,
+            "y": 62
+          },
+          {
+            "id": "vacct",
+            "l": "vendor.oscar",
+            "k": "account",
+            "x": 160,
+            "y": 40
+          },
+          {
+            "id": "supp",
+            "l": "Support system",
+            "k": "server",
+            "x": 270,
+            "y": 40
+          },
+          {
+            "id": "forum",
+            "l": "Official forum",
+            "k": "data",
+            "x": 355,
+            "y": 110
+          },
+          {
+            "id": "link",
+            "l": "Fake download",
+            "k": "data",
+            "x": 160,
+            "y": 140
+          },
+          {
+            "id": "players",
+            "l": "Players",
+            "k": "people",
+            "x": 270,
+            "y": 160
+          },
+          {
+            "id": "creds",
+            "l": "Player passwords",
+            "k": "data",
+            "x": 330,
+            "y": 225
+          },
+          {
+            "id": "soc",
+            "l": "You (SOC)",
+            "k": "soc",
+            "x": 60,
+            "y": 215
+          }
+        ]
+      }
     },
     "s4": {
       "opts": [
@@ -1463,7 +1696,16 @@
           "do": [
             "directory|j.okafor|revoke",
             "directory|j.okafor|reset"
-          ]
+          ],
+          "fx": {
+            "cut": [
+              [
+                "atk",
+                "jacct"
+              ]
+            ],
+            "say": "Jordan's sessions are revoked and the password is reset."
+          }
         },
         {
           "t": "Delete the mail forwarding rule",
@@ -1471,7 +1713,13 @@
           "w": "Otherwise the attacker keeps getting Jordan's email even after the reset.",
           "do": [
             "mail|Forward all mail to an outside address|delete"
-          ]
+          ],
+          "fx": {
+            "guard": {
+              "rule": "Deleted"
+            },
+            "say": "The forwarding rule is deleted."
+          }
         },
         {
           "t": "Block the lookalike domain for the whole company",
@@ -1479,7 +1727,13 @@
           "w": "Anyone else who taps the link hits a wall.",
           "do": [
             "network|graveyard-games-it.help|block"
-          ]
+          ],
+          "fx": {
+            "guard": {
+              "site": "Blocked"
+            },
+            "say": "The fake IT site is blocked company-wide."
+          }
         },
         {
           "t": "Warn all staff about the fake IT text",
@@ -1527,39 +1781,135 @@
           "t": "Reads Jordan's inbox",
           "by": [
             0
+          ],
+          "path": [
+            "atk",
+            "jacct",
+            "inbox"
           ]
         },
         {
           "t": "Forwarding rule sends \"Q3 budget\" to an outside inbox",
           "by": [
             1
+          ],
+          "path": [
+            "inbox",
+            "rule",
+            "outside"
           ]
         },
         {
           "t": "A second employee opens the fake IT link",
           "by": [
             2
+          ],
+          "path": [
+            "staff",
+            "site"
           ]
         },
         {
           "t": "Downloads the \"Unannounced titles\" slide deck",
           "by": [
             0
+          ],
+          "path": [
+            "atk",
+            "jacct",
+            "files"
           ]
         },
         {
           "t": "Forwarding rule sends \"Publisher contract draft\"",
           "by": [
             1
+          ],
+          "path": [
+            "inbox",
+            "rule",
+            "outside"
           ]
         },
         {
           "t": "A third employee types a password into the fake site",
           "by": [
             2
+          ],
+          "path": [
+            "staff",
+            "site",
+            "atk"
           ]
         }
-      ]
+      ],
+      "map": {
+        "nodes": [
+          {
+            "id": "atk",
+            "l": "Attacker",
+            "k": "atk",
+            "x": 48,
+            "y": 62
+          },
+          {
+            "id": "jacct",
+            "l": "j.okafor",
+            "k": "account",
+            "x": 160,
+            "y": 62
+          },
+          {
+            "id": "inbox",
+            "l": "Jordan's inbox",
+            "k": "data",
+            "x": 270,
+            "y": 40
+          },
+          {
+            "id": "files",
+            "l": "Release docs",
+            "k": "data",
+            "x": 355,
+            "y": 105
+          },
+          {
+            "id": "rule",
+            "l": "Forward rule",
+            "k": "data",
+            "x": 270,
+            "y": 150
+          },
+          {
+            "id": "outside",
+            "l": "Outside inbox",
+            "k": "atk",
+            "x": 355,
+            "y": 215
+          },
+          {
+            "id": "site",
+            "l": "Fake IT site",
+            "k": "server",
+            "x": 120,
+            "y": 175
+          },
+          {
+            "id": "staff",
+            "l": "Coworkers",
+            "k": "people",
+            "x": 40,
+            "y": 215
+          },
+          {
+            "id": "soc",
+            "l": "You (SOC)",
+            "k": "soc",
+            "x": 220,
+            "y": 230
+          }
+        ]
+      }
     },
     "s4": {
       "opts": [
@@ -2039,7 +2389,13 @@
           "w": "Closes the door the attacker walked through.",
           "do": [
             "repo|migration|revoke"
-          ]
+          ],
+          "fx": {
+            "guard": {
+              "tok": "Revoked"
+            },
+            "say": "The \"migration\" token is revoked."
+          }
         },
         {
           "t": "Change the server passwords exposed in prod_keys.env",
@@ -2047,7 +2403,13 @@
           "w": "The attacker can use those against live servers. Rotate them immediately.",
           "do": [
             "repo|prod_keys.env|rotate"
-          ]
+          ],
+          "fx": {
+            "guard": {
+              "keys": "Rotated"
+            },
+            "say": "Every password in prod_keys.env is changed."
+          }
         },
         {
           "t": "Bring in incident response and legal, and preserve the logs",
@@ -2055,7 +2417,13 @@
           "w": "Extortion is a crime. Experts and evidence shape every next decision.",
           "do": [
             "desk"
-          ]
+          ],
+          "fx": {
+            "guard": {
+              "logs": "Preserved"
+            },
+            "say": "IR and legal are in, and the logs are preserved."
+          }
         },
         {
           "t": "Publish a statement about what was stolen",
@@ -2103,39 +2471,119 @@
           "t": "Clones 20 more repositories",
           "by": [
             0
+          ],
+          "path": [
+            "atk",
+            "tok",
+            "repos"
           ]
         },
         {
           "t": "Logs into a live game server with a password from prod_keys.env",
           "by": [
             1
+          ],
+          "path": [
+            "atk",
+            "keys",
+            "game"
           ]
         },
         {
           "t": "Starts deleting repository audit logs",
           "by": [
             2
+          ],
+          "path": [
+            "atk",
+            "logs"
           ]
         },
         {
           "t": "Uses the stolen token to create a second token",
           "by": [
             0
+          ],
+          "path": [
+            "atk",
+            "tok"
           ]
         },
         {
           "t": "Changes a setting on a live game server",
           "by": [
             1
+          ],
+          "path": [
+            "atk",
+            "keys",
+            "game"
           ]
         },
         {
           "t": "Tries to wipe the access history for the anti-cheat repo",
           "by": [
             2
+          ],
+          "path": [
+            "atk",
+            "logs"
           ]
         }
-      ]
+      ],
+      "map": {
+        "nodes": [
+          {
+            "id": "atk",
+            "l": "Rented server",
+            "k": "atk",
+            "x": 48,
+            "y": 70
+          },
+          {
+            "id": "tok",
+            "l": "\"migration\" token",
+            "k": "data",
+            "x": 170,
+            "y": 50
+          },
+          {
+            "id": "repos",
+            "l": "Code repos",
+            "k": "server",
+            "x": 310,
+            "y": 50
+          },
+          {
+            "id": "keys",
+            "l": "prod_keys.env",
+            "k": "data",
+            "x": 170,
+            "y": 150
+          },
+          {
+            "id": "game",
+            "l": "Live game servers",
+            "k": "server",
+            "x": 310,
+            "y": 150
+          },
+          {
+            "id": "logs",
+            "l": "Audit logs",
+            "k": "data",
+            "x": 310,
+            "y": 230
+          },
+          {
+            "id": "soc",
+            "l": "You (SOC)",
+            "k": "soc",
+            "x": 60,
+            "y": 220
+          }
+        ]
+      }
     },
     "s4": {
       "opts": [
@@ -2645,7 +3093,14 @@
           "do": [
             "endpoint|PROD-PC-14|isolate",
             "endpoint|FILESRV-02|isolate"
-          ]
+          ],
+          "fx": {
+            "guard": {
+              "pc14": "Isolated",
+              "fs": "Isolated"
+            },
+            "say": "PROD-PC-14 and FILESRV-02 are cut off from the network."
+          }
         },
         {
           "t": "Disconnect the backup server so it can't be encrypted too",
@@ -2653,7 +3108,13 @@
           "w": "Your backups are the way out without paying. Protect them first.",
           "do": [
             "endpoint|BACKUP-01|isolate"
-          ]
+          ],
+          "fx": {
+            "guard": {
+              "backup": "Isolated"
+            },
+            "say": "The backup server is disconnected and safe."
+          }
         },
         {
           "t": "Disable l.moreau and svc-admin, and reset every admin password",
@@ -2663,7 +3124,13 @@
             "directory|svc-admin|disable",
             "directory|l.moreau|disable",
             "directory|svc-admin|reset"
-          ]
+          ],
+          "fx": {
+            "guard": {
+              "admin": "Disabled"
+            },
+            "say": "The stolen admin accounts are disabled."
+          }
         },
         {
           "t": "Restore files from backups",
@@ -2711,39 +3178,131 @@
           "t": "Ransomware spreads to ART-PC-03",
           "by": [
             0
+          ],
+          "path": [
+            "fs",
+            "art"
           ]
         },
         {
           "t": "Attacker reaches the backup server",
           "by": [
             1
+          ],
+          "path": [
+            "atk",
+            "backup"
           ]
         },
         {
           "t": "Uses the stolen admin password on BUILD-01",
           "by": [
             2
+          ],
+          "path": [
+            "atk",
+            "admin",
+            "build"
           ]
         },
         {
           "t": "Starts encrypting the backup server",
           "by": [
             1
+          ],
+          "path": [
+            "atk",
+            "backup"
           ]
         },
         {
           "t": "Ransomware spreads to 12 more workstations",
           "by": [
             0
+          ],
+          "path": [
+            "pc14",
+            "ws"
           ]
         },
         {
           "t": "Creates a hidden admin account to come back later",
           "by": [
             2
+          ],
+          "path": [
+            "atk",
+            "admin"
           ]
         }
-      ]
+      ],
+      "map": {
+        "nodes": [
+          {
+            "id": "atk",
+            "l": "Attacker",
+            "k": "atk",
+            "x": 48,
+            "y": 50
+          },
+          {
+            "id": "pc14",
+            "l": "PROD-PC-14",
+            "k": "device",
+            "x": 150,
+            "y": 105
+          },
+          {
+            "id": "fs",
+            "l": "FILESRV-02",
+            "k": "server",
+            "x": 260,
+            "y": 105
+          },
+          {
+            "id": "backup",
+            "l": "BACKUP-01",
+            "k": "server",
+            "x": 355,
+            "y": 40
+          },
+          {
+            "id": "art",
+            "l": "ART-PC-03",
+            "k": "device",
+            "x": 355,
+            "y": 170
+          },
+          {
+            "id": "ws",
+            "l": "12 workstations",
+            "k": "people",
+            "x": 150,
+            "y": 215
+          },
+          {
+            "id": "admin",
+            "l": "svc-admin",
+            "k": "account",
+            "x": 48,
+            "y": 160
+          },
+          {
+            "id": "build",
+            "l": "BUILD-01",
+            "k": "server",
+            "x": 255,
+            "y": 180
+          },
+          {
+            "id": "soc",
+            "l": "You (SOC)",
+            "k": "soc",
+            "x": 355,
+            "y": 235
+          }
+        ]
+      }
     },
     "s4": {
       "opts": [

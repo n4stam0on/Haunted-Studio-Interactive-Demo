@@ -6,9 +6,11 @@ Players are the newest security analyst at Graveyard Games, a fictional studio d
 
 1. **The Call** – investigate the first contact (check caller ID, hover links, read headers, search the staff directory), spot the red flags, and choose a response.
 2. **Log Hunt** – find the attacker in a log full of red herrings, using analyst notes, clickable user profiles, IP and machine lookups, and log search. Then compare your findings with the **Auto-Analyst**, a detection script that runs on the same log.
-3. **Contain** – use a simulated IT console (Directory, Firewall & DNS, Mail Admin, Endpoints, Code Repos, Incident Desk, and runbooks) to cut the attacker off while they keep acting in a live feed. Browsing is free; each admin action uses one of three moves, and acting on the wrong account, machine, or token wastes one.
+3. **Contain** – use a simulated IT console (Directory, Firewall & DNS, Mail Admin, Endpoints, Code Repos, Incident Desk, and runbooks) to cut the attacker off while they keep acting in a live feed. Browsing is free; each admin action uses one of three moves, and acting on the wrong account, machine, or token wastes one. An animated attack map shows each attacker move as a path through the studio and each of your actions as a defense on the map, so blocked moves visibly stop at your defenses.
 4. **Timeline** – rebuild the attack in order and tag each step with its Cyber Kill Chain stage, the way an incident report starts.
 5. **The Brief** – choose the accurate summary to send leadership.
+
+Each station opens with a mission briefing (goal, steps, and a tip) that players read before starting.
 
 The debrief shows where the attack was stopped on the Cyber Kill Chain and reveals the real incident, mapped to MITRE ATT&CK.
 
