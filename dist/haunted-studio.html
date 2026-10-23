@@ -432,6 +432,14 @@ table.logs{border-collapse:collapse;width:100%;min-width:760px;font-family:var(-
 .mb-x{position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);color:var(--dim);font-size:22px;line-height:1;display:grid;place-items:center}
 .mb-x:hover{color:var(--bone);border-color:var(--dim)}
 .mb-card .eyebrow{padding-right:44px}
+
+/* role framing */
+.rolepill{align-self:flex-start;font-family:var(--f-mono);font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:999px;border:1px solid currentColor}
+.rolepill.target{color:var(--blood);background:var(--blood-wash)}
+.rolepill.soc{color:var(--ecto);background:var(--ecto-wash)}
+.mb-role{font-weight:700;border-radius:10px;padding:8px 12px}
+.mb-role.target{color:var(--blood);background:var(--blood-wash)}
+.mb-role.soc{color:var(--ecto);background:var(--ecto-wash)}
 </style>
 </head>
 <body>
@@ -581,14 +589,14 @@ const STAGES=[
 /* Case data lives in data/cases.json and is loaded from js/cases.js (built by tools/build_cases.py). */
 const CASES = window.CASES;
 const RULES = window.RULES;
-const BUILD = "3.3";
+const BUILD = "3.4";
 
 const app=document.getElementById("app");
 const stepsEl=document.getElementById("steps");
 let S=null, lastId=null, MODE="solo", TEAM=null;
 
 const ROLES=[
-  {r:"Help Desk Lead"},{r:"Threat Hunter"},{r:"Incident Commander"},{r:"Forensic Analyst"},{r:"Communications Lead"}
+  {r:"The Target"},{r:"Threat Hunter"},{r:"Incident Commander"},{r:"Forensic Analyst"},{r:"Communications Lead"}
 ];
 const HUDDLE=[
   "Team huddle: investigate first. Split up the evidence buttons, share what you find, then {n} makes the final calls.",
@@ -609,14 +617,14 @@ function teamForm(){
   const t=TEAM||{name:"",players:[]};
   return `<div class="teamform">
     <div class="field" style="grid-column:1/-1"><label for="tname">Team name</label><input id="tname" maxlength="28" placeholder="The Night Watch" value="${esc(t.name)}"></div>
-    ${[0,1,2,3].map(i=>`<div class="field"><label for="p${i}">Analyst ${i+1}${i>1?" (optional)":""}</label><input id="p${i}" maxlength="20" placeholder="First name" value="${esc(t.players[i]||"")}"></div>`).join("")}
-    <p class="formnote" id="tnote">Roles: Help Desk Lead, Threat Hunter, Incident Commander, Forensic Analyst, Communications Lead. Each person leads a station, and roles rotate when there are fewer players.</p>
+    ${[0,1,2,3].map(i=>`<div class="field"><label for="p${i}">Player ${i+1}${i>1?" (optional)":""}</label><input id="p${i}" maxlength="20" placeholder="First name" value="${esc(t.players[i]||"")}"></div>`).join("")}
+    <p class="formnote" id="tnote">Roles: The Target, Threat Hunter, Incident Commander, Forensic Analyst, Communications Lead. Each person leads a station, and roles rotate when there are fewer players.</p>
   </div>`;
 }
 function readTeam(){
   const players=[0,1,2,3].map(i=>(document.getElementById("p"+i)||{}).value||"").map(s=>s.trim()).filter(Boolean);
   const note=document.getElementById("tnote");
-  if(players.length<2){ if(note){note.textContent="Add at least 2 analysts to play as a team.";note.classList.add("err");} document.getElementById("p"+players.length)?.focus(); return null; }
+  if(players.length<2){ if(note){note.textContent="Add at least 2 players to play as a team.";note.classList.add("err");} document.getElementById("p"+players.length)?.focus(); return null; }
   const name=((document.getElementById("tname")||{}).value||"").trim()||"Team "+players[0];
   return {name,players};
 }
@@ -648,8 +656,8 @@ function home(){
     <div class="stack">
       <span class="eyebrow">Interactive incident response</span>
       <h1>The Haunted Studio</h1>
-      <p class="muted" style="font-size:19px">Graveyard Games launches its biggest game in three days. Tonight, something got into the machine. You're the newest security analyst. Find out how the ghost got in, and stop it.</p>
-      <div class="seg" role="group" aria-label="Play mode"><button data-a="mode" data-m="solo" aria-pressed="${MODE==="solo"}">Solo analyst</button><button data-a="mode" data-m="team" aria-pressed="${MODE==="team"}">Analyst team (2–4)</button></div>
+      <p class="muted" style="font-size:19px">Graveyard Games launches its biggest game in three days. Tonight, something got into the machine. You'll play both sides: first the target the attacker reaches out to, then the security team that has to find the ghost and stop it.</p>
+      <div class="seg" role="group" aria-label="Play mode"><button data-a="mode" data-m="solo" aria-pressed="${MODE==="solo"}">Solo</button><button data-a="mode" data-m="team" aria-pressed="${MODE==="team"}">Team (2–4)</button></div>
       ${MODE==="team"?teamForm():""}
       <div class="btn-row"><button class="btn" data-a="draw">Draw a case file</button><span class="muted" style="font-size:15px">About 15 minutes · no experience needed</span></div>
     </div>
@@ -657,9 +665,9 @@ function home(){
       <b>SHIFT BRIEFING · OCT 29</b><br>
       <span class="alert">▲ Unreleased build reported leaked</span><br>
       <span class="alert">▲ Player accounts losing rare items</span><br>
-      Your job, in five stations:<br>
-      <b>1</b> · Investigate the first contact<br>
-      <b>2</b> · Hunt through the logs<br>
+      You play both sides, in five stations:<br>
+      <b>1</b> · <span class="alert">As the target:</span> handle the first contact<br>
+      <b>2</b> · <span style="color:var(--ecto)">As the security team:</span> hunt through the logs<br>
       <b>3</b> · Contain the live attack<br>
       <b>4</b> · Rebuild the timeline<br>
       <b>5</b> · Brief the studio head<br>
@@ -679,7 +687,7 @@ function home(){
   </section>
   ${boardHTML()}
   <footer class="foot">
-    <span>Analysts trained at this table: <span class="count" id="cnt">${trained()}</span></span>
+    <span>Players at this table: <span class="count" id="cnt">${trained()}</span></span>
     <span class="build">Build ${BUILD}</span>
     <button class="linkish" data-a="resetcount">Reset count and leaderboard</button>
   </footer>`;
@@ -815,7 +823,7 @@ function station1(){
     ${S.ev.length?`<ul class="findings">${S.ev.map(i=>`<li class="${i===nNew?"risein":""}"><span class="verdict">${ev[i].tool?ev[i].tool+" · ":""}${ev[i].t}</span><span>${ev[i].f}</span></li>`).join("")}</ul>`:""}
   </div>`;
   app.innerHTML=`
-  <div class="station-head"><span class="eyebrow">${c.file} · ${c.title} · Station 1</span><h2>The first contact</h2><p class="muted">${s.role}</p>${briefBtn(0)}</div>
+  <div class="station-head"><span class="eyebrow">${c.file} · ${c.title} · Station 1</span>${rolePill(0)}<h2>The first contact</h2><p class="muted">${s.role}</p>${briefBtn(0)}</div>
   ${onPoint(0)}
   <div class="two">
     <div class="stack">${msgHTML(s.msg,anim)}${evid}</div>
@@ -830,8 +838,8 @@ function station2_(){
   const c=S.c, s=c.s2, done=S.s2done;
   const bot = done ? botResult(c) : {flagged:new Set()};
   const total=s.rows.filter(r=>r.s).length;
-  let intro=s.intro;
-  if(S.s1!==null && c.s1.opts[S.s1].v==="best") intro="You handled it well. But not everyone does. "+intro;
+  let intro="Now switch sides: you're on the Graveyard Games security team. "+s.intro;
+  if(S.s1!==null && c.s1.opts[S.s1].v==="best") intro="You handled it well as the target. But not everyone does. "+intro;
   const cap = c.diff==="Easy" ? total : 0;
   const hint = c.diff==="Easy" ? ` <b style="color:var(--bone)">Hint: ${total} rows are suspicious.</b>` : ` <b style="color:var(--bone)">No hints on ${c.diff} cases. False alarms cost points.</b>`;
   let tally="";
@@ -856,7 +864,7 @@ function station2_(){
     }
   }
   app.innerHTML=`
-  <div class="station-head"><span class="eyebrow">${c.file} · Station 2</span><h2>Log Hunt</h2><p class="muted">${intro} Use the analyst notes, tap every suspicious row, then submit.${hint}</p>${briefBtn(1)}</div>
+  <div class="station-head"><span class="eyebrow">${c.file} · Station 2</span>${rolePill(1)}<h2>Log Hunt</h2><p class="muted">${intro} Use the analyst notes, tap every suspicious row, then submit.${hint}</p>${briefBtn(1)}</div>
   ${onPoint(1)}
   <div class="notes"><span class="msg-meta">Analyst notes</span><ul>${s.notes.map(n=>`<li>${n}</li>`).join("")}</ul></div>
   <div class="panel">
@@ -1142,19 +1150,19 @@ function animateMap(){
 
 /* ---------- Mission briefings ---------- */
 const BRIEFS=[
-  {t:"The first contact", goal:"Decide whether this request is real before anyone gets hurt.",
+  {t:"The first contact", role:"You're the target. The attacker is reaching out to you, not the security team.", goal:"Decide whether this request is real before anyone gets hurt.",
    steps:["Read the message as it comes in.","Use the Investigate buttons to check the facts. Checking is free.","Select every red flag. Normal details cost points.","Choose how to respond."],
    tip:"Attackers rely on urgency. Slow down and verify."},
-  {t:"Log Hunt", goal:"Find every log entry that shows the attacker at work.",
+  {t:"Log Hunt", role:"Switch sides: you're now a Threat Hunter on the security team.", goal:"Find every log entry that shows the attacker at work.",
    steps:["Read the analyst notes. They explain what's normal here.","Tap a name to open their profile, or a location to look it up. Use search to filter.","Tap each suspicious row to flag it, then submit.","Compare your results with the detection script."],
    tip:"Some rows look scary but are normal. False alarms cost points."},
-  {t:"Contain the attack", goal:"Cut the attacker off before they finish the job.",
+  {t:"Contain the attack", role:"You're the Incident Commander, running the response.", goal:"Cut the attacker off before they finish the job.",
    steps:["Explore the IT console first. Browsing and reading runbooks are free, and nothing moves until you press Go live.","Press Go live. The attacker acts every few seconds, and the map shows each move.","Use 3 admin actions to stop them. Each one appears on the map right away.","Watch red attacker moves stop at your green defenses."],
    tip:"Cut off access first. Cleanup and announcements come later. Acting on the wrong account or machine wastes a move."},
-  {t:"Rebuild the timeline", goal:"Put the attack back together, step by step.",
+  {t:"Rebuild the timeline", role:"You're the Forensic Analyst, piecing together the evidence.", goal:"Put the attack back together, step by step.",
    steps:["Tap the evidence cards in the order they happened.","Pick the Cyber Kill Chain stage for each step.","Check your timeline."],
    tip:"Not sure about a stage? Open \"What do the stages mean?\"."},
-  {t:"The brief", goal:"Tell the studio head what happened in one message.",
+  {t:"The brief", role:"You're the Communications Lead, reporting to leadership.", goal:"Tell the studio head what happened in one message.",
    steps:["Read all four summaries.","Pick the one you'd actually send."],
    tip:"Accurate beats dramatic. Say what's done and what's still unknown, and don't blame the victim."}
 ];
@@ -1169,6 +1177,7 @@ function openBrief(n,after,entry){
     <button class="mb-x" id="mb-x" aria-label="${entry&&n===0?backLabel:"Close"}">×</button>
     <span class="eyebrow">Read me before proceeding · Station ${n+1} of 5</span>
     <h2 id="mb-title">${b.t}</h2>
+    <p class="mb-role ${n===0?"target":"soc"}">${b.role}</p>
     <p class="mb-goal"><b>Your goal:</b> ${b.goal}</p>
     ${who?`<p class="mb-who">On point: <b>${esc(who)}</b> · ${ROLES[n].r}</p>`:""}
     <ol class="mb-steps">${b.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
@@ -1186,6 +1195,8 @@ function openBrief(n,after,entry){
   setTimeout(()=>w.querySelector("#mb-go")?.focus(),30);
 }
 function needBrief(n,after){ if(S.briefed[n]){ if(after)after(); return; } S.briefed[n]=true; openBrief(n,after,true); }
+const ROLE_DESC=["The person the attacker contacts","SOC · Threat Hunter","SOC · Incident Commander","SOC · Forensic Analyst","SOC · Communications Lead"];
+const rolePill=n=>`<span class="rolepill ${n===0?"target":"soc"}">Your role: ${n===0?"The target":ROLES[n].r}</span>`;
 const briefBtn=n=>`<button class="linkish brief-btn" data-a="rebrief" data-i="${n}">Mission briefing</button>`;
 
 function station3(){ station3_(); animateMap(); needBrief(2); }
@@ -1207,7 +1218,7 @@ function station3_(){
     : `<p class="picked-n">${left>0?`${left} move${left===1?"":"s"} left`:"All 3 moves used. Watching what happens next…"}</p>`;
   const answers=L.done?`<div class="panel"><span class="msg-meta">The 3 actions that stop this attack</span><ol class="plain-ol">${s.acts.filter(a=>a.g==="now").map(a=>`<li><b>${a.do[0]==="desk"?TOOLS.desk.n+" → "+a.t:keyLabel(a.do[0])}</b><span class="why2">${a.w}</span></li>`).join("")}</ol></div>`:"";
   app.innerHTML=`
-  <div class="station-head"><span class="eyebrow">${c.file} · Station 3</span><h2>Contain the attack</h2><p class="muted">Use the IT console to cut the attacker off. Pick the right tool, the right target, and the right action. Acting on the wrong account or machine wastes a move.</p>${briefBtn(2)}</div>
+  <div class="station-head"><span class="eyebrow">${c.file} · Station 3</span>${rolePill(2)}<h2>Contain the attack</h2><p class="muted">Use the IT console to cut the attacker off. Pick the right tool, the right target, and the right action. Acting on the wrong account or machine wastes a move.</p>${briefBtn(2)}</div>
   ${onPoint(2)}
   <div class="live-grid">
     <div class="console">
@@ -1245,7 +1256,7 @@ function stationT_(){
   const ready=T.placed.length===steps.length&&steps.every((_,i)=>T.stages[i]!==undefined&&T.stages[i]!=="");
   if(T.done){S.tlScore={pos,stg};}
   app.innerHTML=`
-  <div class="station-head"><span class="eyebrow">${c.file} · Station 4</span><h2>Rebuild the timeline</h2><p class="muted">Incident reports start with a timeline. Tap the attacker's steps in the order they happened, then tag each one with its Cyber Kill Chain stage.</p>${briefBtn(3)}</div>
+  <div class="station-head"><span class="eyebrow">${c.file} · Station 4</span>${rolePill(3)}<h2>Rebuild the timeline</h2><p class="muted">Incident reports start with a timeline. Tap the attacker's steps in the order they happened, then tag each one with its Cyber Kill Chain stage.</p>${briefBtn(3)}</div>
   ${onPoint(3)}
   <div class="two">
     <div class="panel"><span class="msg-meta">Evidence cards${pool.length?` · ${pool.length} left`:""}</span>
@@ -1273,7 +1284,7 @@ function station4_(){
       <div class="btn-row"><button class="btn" data-a="toR">Reveal the real case</button></div>`;
   }
   app.innerHTML=`
-  <div class="station-head"><span class="eyebrow">${c.file} · Station 5</span><h2>The Brief</h2><p class="muted">The studio head has two minutes before a call with the publisher. Which summary do you send? Accurate beats dramatic.</p>${briefBtn(4)}</div>
+  <div class="station-head"><span class="eyebrow">${c.file} · Station 5</span>${rolePill(4)}<h2>The Brief</h2><p class="muted">The studio head has two minutes before a call with the publisher. Which summary do you send? Accurate beats dramatic.</p>${briefBtn(4)}</div>
   ${onPoint(4)}
   <div class="panel">
     ${choicesHTML(b.opts,S.o4,ans,"s4","s4-",o=>o.best,o=>o.best?"v-best":"v-bad")}
@@ -1305,7 +1316,7 @@ function result(){
   <div class="station-head"><span class="eyebrow">${c.file} · Debrief${team?" · "+esc(TEAM.name):""}</span><h2>${t[0]}</h2><p class="muted">${stopWhy} ${stop<7?`You stopped them at <b style="color:var(--ecto)">${STAGES[stop].k}</b>. Every stage to the left is one the attacker reached first.`:"Here's where each stage could have been stopped."}</p></div>
   <ol class="chain" aria-label="Cyber Kill Chain">${STAGES.map((s,i)=>`<li class="${i<stop?"reached":i===stop?"stop":""}"><span class="n">${i===stop?"STOPPED HERE":"Stage "+(i+1)}</span><span class="k">${s.k}</span><span class="p">${s.p}</span></li>`).join("")}</ol>
   <div class="score">
-    <div class="stat"><b>${pts} / ${max}</b><span>${team?"Team score":"Analyst score"}</span></div>
+    <div class="stat"><b>${pts} / ${max}</b><span>${team?"Team score":"Your score"}</span></div>
     <div class="stat"><b>${gF.hit} / ${gF.total}</b><span>Red flags spotted</span></div>
     <div class="stat"><b>${S.ev.length} / ${c.s1.evidence.length}</b><span>Evidence checked</span></div>
     <div class="stat"><b>${g2.hit} / ${sus}</b><span>Suspicious rows found</span></div>
@@ -1324,7 +1335,7 @@ function result(){
   </section>
   <p style="font-size:19px"><b>The takeaway:</b> most attackers don't break in. They log in.</p>
   ${team?boardHTML(at):""}
-  <div class="btn-row"><button class="btn" data-a="home">${team?"Next team":"Next analyst"}</button><button class="btn btn-ghost" data-a="draw">${team?"Same team, new case":"Draw another case"}</button></div>`;
+  <div class="btn-row"><button class="btn" data-a="home">${team?"Next team":"Next player"}</button><button class="btn btn-ghost" data-a="draw">${team?"Same team, new case":"Draw another case"}</button></div>`;
 }
 
 app.addEventListener("click",e=>{

@@ -2,7 +2,7 @@
 
 An interactive incident response simulator built for the **Spooky Security** cybersecurity awareness event (October 29, 2026), and phase one of a capstone project on security operations for live-service games.
 
-Players are the newest security analyst at Graveyard Games, a fictional studio days from launch. Each case file is based on a real attack on the video game industry and runs through five stations:
+Graveyard Games is a fictional studio days from launch, and players live each attack from both sides. In Station 1 they're the target: the help desk agent, developer, producer, or player the attacker reaches out to. From Station 2 on, they switch sides and become the security team that responds. Each case file is based on a real attack on the video game industry and runs through five stations:
 
 1. **The Call** – investigate the first contact (check caller ID, hover links, read headers, search the staff directory), spot the red flags, and choose a response.
 2. **Log Hunt** – find the attacker in a log full of red herrings, using analyst notes, clickable user profiles, IP and machine lookups, and log search. Then compare your findings with the **Auto-Analyst**, a detection script that runs on the same log.
@@ -14,7 +14,7 @@ Each station opens with a mission briefing (goal, steps, and a tip) that players
 
 The debrief shows where the attack was stopped on the Cyber Kill Chain and reveals the real incident, mapped to MITRE ATT&CK.
 
-**Play solo or as a team.** In team mode, 2–4 players rotate through SOC roles (Help Desk Lead, Threat Hunter, Incident Commander, Forensic Analyst, Communications Lead), each leading a station. Team scores go on a local leaderboard.
+**Play solo or as a team.** In team mode, 2–4 players rotate through SOC roles (The Target, Threat Hunter, Incident Commander, Forensic Analyst, Communications Lead), each leading a station. Team scores go on a local leaderboard.
 
 ## Case files
 
