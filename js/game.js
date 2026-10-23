@@ -11,7 +11,7 @@ const STAGES=[
 /* Case data lives in data/cases.json and is loaded from js/cases.js (built by tools/build_cases.py). */
 const CASES = window.CASES;
 const RULES = window.RULES;
-const BUILD = "3.4";
+const BUILD = "3.5";
 
 const app=document.getElementById("app");
 const stepsEl=document.getElementById("steps");
@@ -300,7 +300,7 @@ function station2_(){
       const locked=!done&&!sel&&cap&&S.flagged.size>=cap;
       let st=""; if(done){ if(r.s&&sel)st="hit"; else if(r.s)st="miss"; else if(sel)st="false"; }
       const why = done && st ? `<tr class="why ${st}"><td></td><td colspan="${s.cols.length}"><span class="verdict">${st==="hit"?"Caught":st==="miss"?"Missed":"False alarm"}</span>${r.w}</td></tr>`:"";
-      return `<tr class="row ${sel&&!done?"sel":""} ${locked?"locked":""} ${st}" data-a="flag" data-i="${i}" tabindex="${done?-1:0}" role="checkbox" aria-checked="${sel}" aria-disabled="${locked}"><td><span class="box">${sel?"✓":""}</span>${done&&bot.flagged.has(i)?`<span class="bot" title="Flagged by the detection script">BOT</span>`:""}</td>${r.c.map((x,k)=>`<td>${cell(x,k,i)}</td>`).join("")}</tr>${why}`;
+      return `<tr class="row ${sel&&!done?"sel":""} ${locked?"locked":""} ${st}" data-a="flag" data-i="${i}" tabindex="${done?-1:0}" role="checkbox" aria-checked="${sel}" aria-disabled="${locked}"><td><span class="box">${sel?"✓":""}</span>${done&&bot.flagged.has(i)?`<span class="bot" title="Flagged by the detection script">BOT</span>`:""}</td>${r.c.map((x,k)=>`<td data-l="${esc(s.cols[k])}">${cell(x,k,i)}</td>`).join("")}</tr>${why}`;
     }).join("")}
     </tbody></table></div>
     ${done?tally+autoAnalystHTML(c,bot,grade2())+`<div class="btn-row"><button class="btn" data-a="to3">Go to Station 3: Contain</button></div>`
@@ -656,6 +656,7 @@ function station3_(){
     </div>
   </div>
   ${answers}
+  ${L.started&&!L.done?`<div class="mbar"><div class="mbar-stats"><span class="live">Live</span><b>${left} move${left===1?"":"s"} left</b><span class="c-bad">${st.landed} got through</span></div><p class="mbar-cap">${mapCaption(L.log[L.log.length-1])}</p><button class="mbar-btn" data-a="tomap">View map</button></div>`:""}
   ${L.done?`<div class="btn-row"><button class="btn" data-a="toT">Go to Station 4: Timeline</button></div>`:""}`;
 }
 
@@ -783,6 +784,7 @@ app.addEventListener("click",e=>{
   else if(a==="golive"&&!S.live.started){S.live.started=true;station3();const sess=S;S.live.tm=setTimeout(()=>liveTick(sess),1500);}
   else if(a==="cact"){conAction(el.dataset.k);}
   else if(a==="rebrief"){openBrief(i);}
+  else if(a==="tomap"){document.getElementById("mapbox")?.scrollIntoView({block:"start",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});}
   else if(a==="ctool"){S.con.tool=el.dataset.k;station3();}
   else if(a==="cuser"){S.con.user=el.dataset.k;station3();}
   else if(a==="toT"){stopLive();stationT();toTop();}

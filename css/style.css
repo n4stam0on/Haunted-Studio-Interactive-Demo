@@ -317,7 +317,8 @@ table.logs{border-collapse:collapse;width:100%;min-width:760px;font-family:var(-
 .stagehelp ol{margin:8px 0 0;padding-left:20px}
 @media (max-width:820px){.live-grid{grid-template-columns:minmax(0,1fr)}.feed{position:static}}
 .cellbtn{white-space:nowrap}
-.logs td:nth-child(2){white-space:nowrap}
+.logs tr.row td:nth-child(2){white-space:nowrap}
+.logs tr.why td{white-space:normal}
 
 /* station 3: IT console */
 .console{display:grid;grid-template-columns:170px minmax(0,1fr);background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;min-width:0}
@@ -429,3 +430,48 @@ table.logs{border-collapse:collapse;width:100%;min-width:760px;font-family:var(-
 .mb-role{font-weight:700;border-radius:10px;padding:8px 12px}
 .mb-role.target{color:var(--blood);background:var(--blood-wash)}
 .mb-role.soc{color:var(--ecto);background:var(--ecto-wash)}
+
+/* ---------- phone layout ---------- */
+.mbar{display:none}
+@media (max-width:980px){
+  .live-grid .feed{order:-1}
+  .mbar{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;position:fixed;left:0;right:0;bottom:0;z-index:40;
+    background:var(--panel);border-top:2px solid var(--blood);box-shadow:0 -8px 24px rgba(0,0,0,.45);
+    padding-block:10px calc(10px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .mbar-stats{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;font-family:var(--f-mono);font-size:12.5px;text-transform:uppercase;letter-spacing:.05em}
+  .mbar-cap{grid-column:1/2;margin:0;font-size:14px;line-height:1.3;max-height:2.6em;overflow:hidden}
+  .mbar-btn{grid-row:1/3;grid-column:2;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+  body:has(.mbar) .wrap{padding-bottom:120px}
+}
+@media (max-width:700px){
+  body{font-size:16px}
+  .steps li:not(.now){display:none}
+  .top{gap:10px}
+  .brand b{font-size:24px}
+  h2{font-size:30px}
+  /* log rows become tappable cards */
+  .logwrap{overflow:visible;border:0;background:transparent;border-radius:0}
+  table.logs{min-width:0;width:100%}
+  .logs thead{display:none}
+  .logs,.logs tbody{display:block}
+  .logs tr.row{display:grid;grid-template-columns:34px minmax(0,1fr) minmax(0,1fr);gap:8px 12px;padding:12px;margin-bottom:8px;border:1px solid var(--line);border-radius:12px;background:var(--night)}
+  .logs tr.row.sel{border-color:var(--pumpkin)}
+  .logs tr.row.hit{border-color:var(--ecto)} .logs tr.row.miss{border-color:var(--amber)} .logs tr.row.false{border-color:var(--blood)}
+  .logs tr.row td{display:block;padding:0;border:0;min-width:0;white-space:normal;overflow-wrap:anywhere;font-size:14px}
+  .logs tr.row td:first-child{grid-row:1/5;grid-column:1}
+  .logs tr.row td:nth-child(6),.logs tr.row td:nth-child(7){grid-column:2/4}
+  .logs tr.row td[data-l]::before{content:attr(data-l);display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:1px}
+  .logs .box{width:26px;height:26px;font-size:15px}
+  .logs .cellbtn{white-space:normal}
+  .logs tr.why{display:block;margin:-6px 0 10px}
+  .logs tr.why td{display:block;border:0;padding:8px 12px}
+  .logs tr.why td:first-child{display:none}
+  .search input{font-size:16px}
+  /* bigger tap targets */
+  .cbtn{padding:10px 13px;font-size:14px}
+  .evbtn{padding:11px 13px}
+  .ctool{padding:11px 12px}
+  .linkish{padding:6px 0}
+  .tcard{padding:13px 14px}
+  .stage select{font-size:16px;padding:9px 10px;width:100%}
+}
